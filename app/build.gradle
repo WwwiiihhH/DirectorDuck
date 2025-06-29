@@ -7,6 +7,11 @@ android {
     namespace 'com.example.directorduck_v10'
     compileSdk 34
 
+    buildFeatures {
+        viewBinding true
+    }
+
+
     defaultConfig {
         applicationId "com.example.directorduck_v10"
         minSdk 24
