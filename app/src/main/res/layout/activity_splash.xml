@@ -10,6 +10,24 @@
 
 
     <TextView
+        android:id="@+id/btn_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/skip_btn_bg"
+        android:text="跳过 5s"
+        android:textColor="#FFFFFF"
+        android:padding="8dp"
+        android:textSize="14sp"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="20dp"/>
+
+
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,6 +38,7 @@
         android:fontFamily="@font/mkt"
         android:textSize="20dp"
         android:layout_marginBottom="100dp"/>
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/splash_bottomlayout"
