@@ -6,32 +6,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:background="@drawable/orange_bg">
+    android:background="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/TopLayout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         app:layout_constraintTop_toTopOf="parent"
-
+        android:layout_marginTop="10dp"
         >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello , XXX"
+        <ImageView
+            android:id="@+id/iv_toplogo"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/pnglogo2"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="5dp"/>
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="请先登录"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_toplogo"
             android:layout_marginStart="10dp"
             android:textStyle="bold"
-            android:textSize="25sp"/>
+            android:textSize="23sp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
     <View
         android:id="@+id/topDivider"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:background="#FEC5A7"
+        android:background="#FFF6E4"
         app:layout_constraintTop_toBottomOf="@id/TopLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -111,7 +121,7 @@
                 android:id="@+id/iv_course"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/practice_normal"
+                android:src="@drawable/course_normal2"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
@@ -129,45 +139,29 @@
                 android:textStyle="bold"/>
 
 
-
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
+        <!-- 第三个按钮：AI 问答（仅图标 + 居中） -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottom_nav_3"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/bottom_nav_2"
             app:layout_constraintEnd_toStartOf="@id/bottom_nav_4"
-            android:layout_marginTop="5dp"
-            >
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <ImageView
                 android:id="@+id/iv_ai"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/practice_normal"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:src="@drawable/logonew"
+                android:scaleType="centerInside"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <TextView
-                android:id="@+id/tv_ai"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="AI问答"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/iv_ai"
-                android:textSize="12sp"
-                android:textColor="#A7A6B5"
-                android:textStyle="bold"/>
-
-
-
+                app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
@@ -178,8 +172,44 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/bottom_nav_3"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/bottom_nav_5"
             android:layout_marginTop="5dp">
+
+            <ImageView
+                android:id="@+id/iv_info"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/info_normal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/tv_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="资讯"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iv_info"
+                android:textSize="12sp"
+                android:textColor="#A7A6B5"
+                android:textStyle="bold"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- 第五个按钮：我的 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/bottom_nav_5"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/bottom_nav_4"
+            android:layout_marginTop="5dp">
+            <!-- 图标和文字省略，保持原样 -->
 
             <ImageView
                 android:id="@+id/iv_mine"
@@ -202,10 +232,9 @@
                 android:textColor="#A7A6B5"
                 android:textStyle="bold"/>
 
-
-
-
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
 
 

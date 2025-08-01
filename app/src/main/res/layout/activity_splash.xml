@@ -53,7 +53,7 @@
             android:id="@+id/iv_logo"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/logo"
+            android:src="@drawable/logonew2"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
 

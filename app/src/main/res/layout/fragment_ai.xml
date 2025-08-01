@@ -4,17 +4,71 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.AiFragment">
+    tools:context=".fragments.ai.AiFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/cv_edit_layout"/>
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_edit_layout"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="AI"
-        />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:cardCornerRadius="8dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:cardElevation="10dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/edit_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <EditText
+                android:id="@+id/et_aiinput"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:background="@drawable/edittext_bg"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="#999999"
+                android:hint="给 鸭局长 发送消息"
+                android:inputType="text"
+                android:gravity="center_vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/iv_send"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="5dp" />
+
+
+            <ImageView
+                android:id="@+id/iv_send"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                app:layout_constraintStart_toEndOf="@id/et_aiinput"
+                app:layout_constraintTop_toTopOf="@id/et_aiinput"
+                app:layout_constraintBottom_toBottomOf="@id/et_aiinput"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:src="@drawable/send_normal"
+                android:layout_marginEnd="10dp"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
