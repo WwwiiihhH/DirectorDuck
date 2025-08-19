@@ -46,6 +46,9 @@ class LoginActivity : BaseActivity() {
                             val intent = Intent(this@LoginActivity, MainActivity::class.java)
                             intent.putExtra("user", body.data)
                             startActivity(intent)
+
+
+
                             finish()
                         } else {
                             Toast.makeText(

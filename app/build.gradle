@@ -64,4 +64,12 @@ dependencies {
     // 添加这两个以启用 by viewModels() 和 by activityViewModels()
     implementation "androidx.activity:activity-ktx:1.8.0"
     implementation "androidx.fragment:fragment-ktx:1.6.2"
+
+    // 添加Glide依赖用于图片加载
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1'
+
+    // 或者如果你使用Kotlin，也可以用kapt：
+//    kapt 'com.github.bumptech.glide:compiler:4.15.1'
+
 }

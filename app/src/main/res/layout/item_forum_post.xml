@@ -98,14 +98,14 @@
 
             <TextView
                 android:id="@+id/tv_comment1_content"
-                android:layout_width="0dp"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="评论内容1"
                 android:textColor="#333333"
                 android:textSize="13sp"
                 app:layout_constraintStart_toEndOf="@id/tv_comment1_user"
                 app:layout_constraintTop_toTopOf="@id/tv_comment1_user"
-                app:layout_constraintEnd_toEndOf="parent" />
+                />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- 评论2 -->

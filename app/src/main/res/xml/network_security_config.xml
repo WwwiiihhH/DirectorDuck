@@ -24,5 +24,9 @@
         <domain includeSubdomains="true">47.111.144.28</domain>
     </domain-config>
 
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">192.168.0.105</domain>
+    </domain-config>
+
 
 </network-security-config>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 纯色背景层 -->
+    <item>
+        <color android:color="#FFFFFF" /> <!-- 可换成你想要的颜色 -->
+    </item>
+
+    <!-- 右下角的图片层 -->
+    <item android:gravity="bottom|end">
+        <inset
+            android:drawable="@drawable/logo10"
+            android:insetRight="-40dp"
+            android:insetBottom="-40dp"/>
+    </item>
+
+</layer-list>
