@@ -31,7 +31,7 @@ class PostAdapter(
 
     // 配置localhost服务器地址
     companion object {
-        private const val BASE_URL = "http://192.168.0.105:8080"
+        private const val BASE_URL = "http://192.168.0.108:8080"
     }
 
     inner class PostViewHolder(val binding: ItemForumPostBinding) : RecyclerView.ViewHolder(binding.root)
