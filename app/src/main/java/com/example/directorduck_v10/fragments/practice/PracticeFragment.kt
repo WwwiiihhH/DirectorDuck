@@ -53,7 +53,7 @@ class PracticeFragment : Fragment() {
     )
 
     private val horizontalItems = listOf(
-        ImageItem(R.drawable.icon_100, "图像1"),
+        ImageItem(R.drawable.icon_100, "考试资讯"),
         ImageItem(R.drawable.app_iocn_manager, "图像2"),
         ImageItem(R.drawable.app_iocn_int, "图像3"),
         ImageItem(R.drawable.app_iocn_myhomework, "图像4")
@@ -99,8 +99,18 @@ class PracticeFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         binding.recyclerHorizontal.adapter = HorizontalImageAdapter(horizontalItems) { item ->
-            Toast.makeText(requireContext(), "点击了：${item.title}", Toast.LENGTH_SHORT).show()
-            // 这里可以添加跳转逻辑
+            val position = horizontalItems.indexOf(item)
+            when (position) {
+                0 -> {
+                    // 点击第一个按钮，跳转到NoticeActivity
+                    val intent = android.content.Intent(requireContext(), com.example.directorduck_v10.NoticeActivity::class.java)
+                    startActivity(intent)
+                }
+                else -> {
+                    Toast.makeText(requireContext(), "点击了：${item.title}", Toast.LENGTH_SHORT).show()
+                    // 这里可以添加其他按钮的跳转逻辑
+                }
+            }
         }
     }
 

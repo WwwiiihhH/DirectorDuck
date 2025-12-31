@@ -2,6 +2,7 @@ package com.example.directorduck_v10.data.network
 
 import com.example.directorduck_v10.data.api.CommentService
 import com.example.directorduck_v10.data.api.CourseService
+import com.example.directorduck_v10.data.api.NoticeService
 import com.example.directorduck_v10.data.api.PostService
 import com.example.directorduck_v10.data.api.PracticeService
 import com.example.directorduck_v10.data.api.UserService
@@ -9,9 +10,13 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
-    private const val BASE_URL = "http://192.168.0.108:8080"
+    private const val BASE_URL = "http://192.168.0.101:8080"
 
 //    private const val BASE_URL = "http://47.111.144.28:8080"
+
+//    private const val BASE_URL = "http://59.110.16.30:8080"
+
+
 
 
     private val retrofit = Retrofit.Builder()
@@ -28,4 +33,10 @@ object ApiClient {
     val commentService: CommentService = retrofit.create(CommentService::class.java)
 
     val practiceService: PracticeService = retrofit.create(PracticeService::class.java)
+
+    val noticeService: NoticeService = retrofit.create(NoticeService::class.java)
+
+
+    // 添加获取基础URL的方法，供其他地方使用
+    fun getBaseUrl(): String = BASE_URL
 }

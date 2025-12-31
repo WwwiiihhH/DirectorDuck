@@ -7,13 +7,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.directorduck_v10.CoursePlayerActivity
 import com.example.directorduck_v10.data.model.Course
+import com.example.directorduck_v10.data.network.ApiClient
 import com.example.directorduck_v10.databinding.ItemCourseBinding
 
 class CourseAdapter(private val courses: List<Course>) : RecyclerView.Adapter<CourseAdapter.ViewHolder>() {
-
-    companion object {
-        private const val BASE_URL = "http://192.168.0.105:8080" // 与ApiClient中的BASE_URL保持一致
-    }
 
     inner class ViewHolder(val binding: ItemCourseBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(course: Course) {
@@ -25,11 +22,11 @@ class CourseAdapter(private val courses: List<Course>) : RecyclerView.Adapter<Co
                 val context = binding.root.context
                 val intent = Intent(context, CoursePlayerActivity::class.java)
 
-                // 构建完整的视频URL
+                // 使用ApiClient中的基础URL
                 val fullVideoUrl = if (course.videoUrl.startsWith("http")) {
                     course.videoUrl // 如果已经是完整URL，直接使用
                 } else {
-                    BASE_URL + course.videoUrl // 拼接基础URL
+                    ApiClient.getBaseUrl() + course.videoUrl // 拼接基础URL
                 }
 
                 intent.putExtra("videoUrl", fullVideoUrl)

@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NoticeDetailActivity"
+    >
+    
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout1"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="25dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/black" />
+        
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/layout1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- 标题布局 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/toptitle_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="浙江省各级机关单位考试录用公务员公告"
+                    android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/label1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="浙江 · 公务员"
+                    app:layout_constraintTop_toBottomOf="@id/tv_title"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginTop="5dp"/>
+
+                <TextView
+                    android:id="@+id/label2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2025.11.03"
+                    app:layout_constraintTop_toBottomOf="@id/tv_title"
+                    android:textSize="12sp"
+                    android:layout_marginTop="5dp"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- 分割线 -->
+            <View
+                android:id="@+id/divider"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="15dp"
+                android:background="@color/light_gray"
+                app:layout_constraintTop_toBottomOf="@id/toptitle_layout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+
+            <!-- 时间信息卡片 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/time_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="5dp"
+                app:layout_constraintTop_toBottomOf="@id/divider"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <!-- 卡片标题区域 -->
+                    <LinearLayout
+                        android:id="@+id/header_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <!-- 人员图标 -->
+                        <ImageView
+                            android:id="@+id/ic_person"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/logonew2"
+                            android:layout_marginEnd="8dp" />
+
+                        <!-- 招聘人数 -->
+                        <TextView
+                            android:id="@+id/tv_recruit_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="招聘 5262 人"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black" />
+
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="  "
+                            android:layout_marginEnd="8dp" />
+
+                        <!-- 岗位数量 -->
+                        <TextView
+                            android:id="@+id/tv_position_count"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="4004 个岗位"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:layout_weight="1" />
+
+                    </LinearLayout>
+
+                    <!-- 时间列表 -->
+                    <LinearLayout
+                        android:id="@+id/time_list_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="16dp"
+                        app:layout_constraintTop_toBottomOf="@id/header_layout"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <!-- 报名时间 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <!-- 圆点 -->
+                            <View
+                                android:layout_width="6dp"
+                                android:layout_height="6dp"
+                                android:background="@color/gray"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="12dp"
+                                android:layout_gravity="top" />
+
+                            <!-- 标签和时间 -->
+                            <TextView
+                                android:id="@+id/tv_apply_time_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="报名时间："
+                                android:textSize="13sp"
+                                android:textColor="@color/black" />
+
+                            <TextView
+                                android:id="@+id/tv_apply_time_value"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="2025/11/06 09:00-2025/11/11 17:00"
+                                android:textSize="12sp"
+                                android:textColor="@color/gray"
+                                android:layout_weight="1" />
+
+                        </LinearLayout>
+
+                        <!-- 缴费时间 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <!-- 圆点 -->
+                            <View
+                                android:layout_width="6dp"
+                                android:layout_height="6dp"
+                                android:background="@color/gray"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="12dp"
+                                android:layout_gravity="top" />
+
+                            <!-- 标签和时间 -->
+                            <TextView
+                                android:id="@+id/tv_payment_time_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="缴费时间："
+                                android:textSize="13sp"
+                                android:textColor="@color/black" />
+
+                            <TextView
+                                android:id="@+id/tv_payment_time_value"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="2025/11/14 09:00-2025/11/18 17:00"
+                                android:textSize="12sp"
+                                android:textColor="@color/gray"
+                                android:layout_weight="1" />
+
+                        </LinearLayout>
+
+                        <!-- 准考证打印 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <!-- 圆点 -->
+                            <View
+                                android:layout_width="6dp"
+                                android:layout_height="6dp"
+                                android:background="@color/gray"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="12dp"
+                                android:layout_gravity="top" />
+
+                            <!-- 标签和时间 -->
+                            <TextView
+                                android:id="@+id/tv_admit_card_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="准考证打印："
+                                android:textSize="13sp"
+                                android:textColor="@color/black" />
+
+                            <TextView
+                                android:id="@+id/tv_admit_card_value"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="2025/12/02 09:00-2025/12/07 17:00"
+                                android:textSize="12sp"
+                                android:textColor="@color/gray"
+                                android:layout_weight="1" />
+
+                        </LinearLayout>
+
+                        <!-- 笔试时间 -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <!-- 圆点 -->
+                            <View
+                                android:layout_width="6dp"
+                                android:layout_height="6dp"
+                                android:background="@color/gray"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="12dp"
+                                android:layout_gravity="top" />
+
+                            <!-- 标签和时间 -->
+                            <TextView
+                                android:id="@+id/tv_exam_time_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="笔试时间："
+                                android:textSize="13sp"
+                                android:textColor="@color/black" />
+
+                            <TextView
+                                android:id="@+id/tv_exam_time_value"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="2025/12/07 09:00-16:30"
+                                android:textSize="12sp"
+                                android:textColor="@color/gray"
+                                android:layout_weight="1" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+
+
+            <!-- 公告详情内容 -->
+            <TextView
+                android:id="@+id/tv_notice_content"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="1111111"
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                android:lineSpacingExtra="6dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                app:layout_constraintTop_toBottomOf="@id/time_card"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

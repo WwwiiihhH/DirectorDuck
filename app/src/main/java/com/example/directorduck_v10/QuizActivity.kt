@@ -5,11 +5,30 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.viewpager2.widget.ViewPager2
+import com.example.directorduck_v10.data.api.RandomQuestionRequest
 import com.example.directorduck_v10.data.model.User
+import com.example.directorduck_v10.data.network.ApiClient
+import com.example.directorduck_v10.databinding.ActivityQuizBinding
+import com.example.directorduck_v10.fragments.practice.adapters.QuestionPagerAdapter
+import com.example.directorduck_v10.fragments.practice.data.Question
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class QuizActivity : BaseActivity() {
 
-    private lateinit var currentUser: User // 添加用户变量
+    private lateinit var binding: ActivityQuizBinding
+    private lateinit var currentUser: User
+    private lateinit var questionPagerAdapter: QuestionPagerAdapter
+    private val questions = mutableListOf<Question>()
+
+    private var categoryId: Int = -1
+    private var categoryName: String? = null
+    private var subcategoryId: Int = -1
+    private var subcategoryName: String? = null
+    private var questionCount: Int = 10
 
     companion object {
         const val EXTRA_CATEGORY_ID = "category_id"
@@ -18,12 +37,11 @@ class QuizActivity : BaseActivity() {
         const val EXTRA_SUBCATEGORY_NAME = "subcategory_name"
         const val EXTRA_QUESTION_COUNT = "question_count"
 
-        // 添加日志标签
         private const val TAG = "QuizActivity"
 
         fun startQuizActivity(
             context: Context,
-            user: User, // 确保这里有user参数
+            user: User,
             categoryId: Int? = null,
             categoryName: String? = null,
             subcategoryId: Int? = null,
@@ -31,7 +49,7 @@ class QuizActivity : BaseActivity() {
             questionCount: Int
         ) {
             val intent = Intent(context, QuizActivity::class.java).apply {
-                putExtra("user", user) // 传递用户信息
+                putExtra("user", user)
                 categoryId?.let { putExtra(EXTRA_CATEGORY_ID, it) }
                 categoryName?.let { putExtra(EXTRA_CATEGORY_NAME, it) }
                 subcategoryId?.let { putExtra(EXTRA_SUBCATEGORY_ID, it) }
@@ -44,98 +62,148 @@ class QuizActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_quiz)
+        binding = ActivityQuizBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // 获取用户信息
-        try {
-            currentUser = intent.getSerializableExtra("user") as User
-            Log.d(TAG, "获取到用户信息: ID=${currentUser.id}, Username=${currentUser.username}")
-        } catch (e: Exception) {
-            Log.e(TAG, "获取用户信息失败: ${e.message}")
-            Toast.makeText(this, "用户信息获取失败", Toast.LENGTH_SHORT).show()
-            finish()
+        // 获取用户信息和参数
+        if (!initData()) {
             return
         }
 
-        // 打印所有接收到的Intent数据
-        logIntentData()
+        // 设置UI
+        setupUI()
 
-        // 获取传递的参数
-        val categoryId = intent.getIntExtra(EXTRA_CATEGORY_ID, -1)
-        val categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME)
-        val subcategoryId = intent.getIntExtra(EXTRA_SUBCATEGORY_ID, -1)
-        val subcategoryName = intent.getStringExtra(EXTRA_SUBCATEGORY_NAME)
-        val questionCount = intent.getIntExtra(EXTRA_QUESTION_COUNT, 10)
+        // 加载题目
+        loadQuestions()
 
-        // 详细的参数日志
-        Log.d(TAG, "=== 接收到的参数详情 ===")
-        Log.d(TAG, "用户ID: ${currentUser.id}")
-        Log.d(TAG, "用户名: ${currentUser.username}")
-        Log.d(TAG, "categoryId: $categoryId")
-        Log.d(TAG, "categoryName: $categoryName")
-        Log.d(TAG, "subcategoryId: $subcategoryId")
-        Log.d(TAG, "subcategoryName: $subcategoryName")
-        Log.d(TAG, "questionCount: $questionCount")
-        Log.d(TAG, "====================")
-
-        // 显示传递的参数（用于测试）
-        val message = when {
-            subcategoryId != -1 && subcategoryName != null -> {
-                "小类刷题: $subcategoryName, 题目数量: $questionCount"
-            }
-            categoryId != -1 && categoryName != null -> {
-                "大类刷题: $categoryName, 题目数量: $questionCount"
-            }
-            else -> {
-                "参数错误"
-            }
-        }
-
-        Log.d(TAG, "显示消息: $message")
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-
-        // 这里可以实现具体的答题功能
-        setupQuiz(categoryId, categoryName, subcategoryId, subcategoryName, questionCount)
+        binding.back.setOnClickListener{finish()}
     }
 
-    private fun logIntentData() {
-        Log.d(TAG, "=== Intent数据详情 ===")
-        Log.d(TAG, "Intent Action: ${intent.action}")
-        Log.d(TAG, "Intent Data: ${intent.data}")
-        Log.d(TAG, "Intent Extras:")
+    private fun initData(): Boolean {
+        try {
+            currentUser = intent.getSerializableExtra("user") as User
+            categoryId = intent.getIntExtra(EXTRA_CATEGORY_ID, -1)
+            categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME)
+            subcategoryId = intent.getIntExtra(EXTRA_SUBCATEGORY_ID, -1)
+            subcategoryName = intent.getStringExtra(EXTRA_SUBCATEGORY_NAME)
+            questionCount = intent.getIntExtra(EXTRA_QUESTION_COUNT, 10)
 
-        // 遍历所有extras
-        intent.extras?.keySet()?.forEach { key ->
-            val value = intent.extras?.get(key)
-            Log.d(TAG, "  $key: $value (type: ${value?.javaClass?.simpleName})")
+            Log.d(TAG, "获取到用户信息: ID=${currentUser.id}, Username=${currentUser.username}")
+            return true
+        } catch (e: Exception) {
+            Log.e(TAG, "获取数据失败: ${e.message}")
+            Toast.makeText(this, "数据获取失败", Toast.LENGTH_SHORT).show()
+            finish()
+            return false
         }
-        Log.d(TAG, "==================")
     }
 
-    private fun setupQuiz(
-        categoryId: Int,
-        categoryName: String?,
-        subcategoryId: Int,
-        subcategoryName: String?,
-        questionCount: Int
-    ) {
-        // 这里实现具体的答题逻辑
-        // 例如：加载题目、显示题目、处理答题等
-        val title = when {
-            subcategoryName != null -> "答题 - $subcategoryName"
-            categoryName != null -> "答题 - $categoryName"
+    private fun setupUI() {
+        // 设置顶部信息
+        binding.tvCategoryInfo.text = when {
+            subcategoryName != null -> "专项练习(${subcategoryName})"
+            categoryName != null -> "专项练习(${categoryName})"
             else -> "答题练习"
         }
 
-        Log.d(TAG, "设置标题: $title")
-        supportActionBar?.title = title
 
-        // 现在你可以使用currentUser变量了
-        Log.d(TAG, "当前用户: ${currentUser.username}, ID: ${currentUser.id}")
+        // 设置ViewPager
+        questionPagerAdapter = QuestionPagerAdapter(
+            questions,
+            onAnswerSelected = { questionId, selectedOption ->
+                // 处理答案选择
+                Log.d(TAG, "题目 $questionId 选择了选项: $selectedOption")
+            },
+            onSubmitClick = { questionId, selectedOption ->
+                // 处理提交答案
+                if (selectedOption.isEmpty()) {
+                    Toast.makeText(this, "请选择一个答案", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "提交答案: $selectedOption", Toast.LENGTH_SHORT).show()
+                    // 这里可以添加答案验证逻辑
+                    moveToNextQuestion()
+                }
+            }
+        )
+
+        binding.viewPagerQuestions.adapter = questionPagerAdapter
+
+        // 设置页面切换监听器
+        binding.viewPagerQuestions.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                updateProgressIndicator()
+            }
+        })
     }
 
-    // 提供获取当前用户的方法
-    fun getCurrentUser(): User {
-        return currentUser
+    private fun loadQuestions() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // 构造请求参数
+                val request = RandomQuestionRequest(
+                    categoryId = if (subcategoryId == -1) categoryId else null,
+                    subcategoryId = if (subcategoryId != -1) subcategoryId else null,
+                    count = questionCount
+                )
+
+                Log.d(TAG, "请求参数: categoryId=${request.categoryId}, subcategoryId=${request.subcategoryId}, count=${request.count}")
+
+                // 调用API获取随机题目
+                val response = ApiClient.practiceService.getRandomQuestions(request)
+
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    if (apiResponse?.code == 200 && apiResponse.data != null) {
+                        withContext(Dispatchers.Main) {
+                            questions.clear()
+                            questions.addAll(apiResponse.data)
+                            questionPagerAdapter.notifyDataSetChanged()
+                            updateProgressIndicator()
+
+                            if (questions.isEmpty()) {
+                                Toast.makeText(this@QuizActivity, "没有找到相关题目", Toast.LENGTH_SHORT).show()
+                                finish()
+                            }
+
+                            Log.d(TAG, "成功加载 ${questions.size} 道题目")
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            val errorMsg = apiResponse?.message ?: "加载题目失败"
+                            Toast.makeText(this@QuizActivity, errorMsg, Toast.LENGTH_SHORT).show()
+                            Log.e(TAG, "API返回错误: $errorMsg")
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@QuizActivity, "服务器响应错误: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        Log.e(TAG, "服务器响应错误: ${response.code()}")
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@QuizActivity, "网络错误: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "网络错误: ${e.message}")
+                }
+            }
+        }
+    }
+
+    private fun updateProgressIndicator() {
+        val currentPosition = binding.viewPagerQuestions.currentItem + 1
+        val totalQuestions = questions.size
+        binding.tvProgress.text = "$currentPosition/$totalQuestions"
+    }
+
+    private fun moveToNextQuestion() {
+        val currentPosition = binding.viewPagerQuestions.currentItem
+        if (currentPosition < questions.size - 1) {
+            binding.viewPagerQuestions.currentItem = currentPosition + 1
+        } else {
+            // 最后一题，可以显示结果或结束练习
+            Toast.makeText(this, "练习完成！", Toast.LENGTH_SHORT).show()
+            // 这里可以跳转到结果页面
+        }
     }
 }

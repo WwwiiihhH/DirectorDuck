@@ -12,6 +12,23 @@
         <domain includeSubdomains="true">192.168.0.104</domain>
     </domain-config>
 
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">192.168.0.101</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">192.168.0.102</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">192.168.0.103</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">192.168.0.107</domain>
+    </domain-config>
+
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">192.168.0.106</domain>
     </domain-config>
@@ -22,6 +39,10 @@
 
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">47.111.144.28</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">59.110.16.30</domain>
     </domain-config>
 
     <domain-config cleartextTrafficPermitted="true">

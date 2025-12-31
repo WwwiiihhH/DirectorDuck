@@ -27,10 +27,6 @@ class PostDetailActivity : AppCompatActivity() {
     private lateinit var commentAdapter: CommentAdapter
     private val comments = mutableListOf<Comment>()
 
-    companion object {
-        private const val BASE_URL = "http://192.168.0.105:8080"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPostDetailBinding.inflate(layoutInflater)
@@ -76,7 +72,7 @@ class PostDetailActivity : AppCompatActivity() {
             // 处理图片显示
             if (!post.imageUrl.isNullOrEmpty()) {
                 ivPostImage.visibility = View.VISIBLE
-                val fullImageUrl = "$BASE_URL${post.imageUrl}"
+                val fullImageUrl = "${ApiClient.getBaseUrl()}${post.imageUrl}"
 
                 Glide.with(this@PostDetailActivity)
                     .load(fullImageUrl)

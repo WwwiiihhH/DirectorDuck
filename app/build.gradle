@@ -10,6 +10,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
 
 
@@ -23,12 +24,34 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+//    buildTypes {
+//        release {
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//        }
+//    }
+
     buildTypes {
+        debug {
+            // 开发环境使用本地服务器
+            buildConfigField "String", "BASE_URL", "\"http://192.168.0.108:8080\""
+            buildConfigField "boolean", "IS_DEBUG", "true"
+        }
+
         release {
+            // 生产环境使用云服务器
+            buildConfigField "String", "BASE_URL", "\"http://59.110.16.30:8080\""
+            buildConfigField "boolean", "IS_DEBUG", "false"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+
+
+
+
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -71,5 +94,7 @@ dependencies {
 
     // 或者如果你使用Kotlin，也可以用kapt：
 //    kapt 'com.github.bumptech.glide:compiler:4.15.1'
+
+
 
 }
