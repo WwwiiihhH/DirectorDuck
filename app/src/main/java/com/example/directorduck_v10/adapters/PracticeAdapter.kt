@@ -1,4 +1,4 @@
-package com.example.directorduck_v10.fragments.practice.adapters
+package com.example.directorduck_v10.adapters
 
 import android.view.LayoutInflater
 import android.view.View

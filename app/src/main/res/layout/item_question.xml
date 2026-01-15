@@ -108,6 +108,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="提交答案"
+        android:visibility="gone"
         android:textSize="16sp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"

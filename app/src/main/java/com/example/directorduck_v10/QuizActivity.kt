@@ -2,20 +2,25 @@ package com.example.directorduck_v10
 
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
+import android.os.*
 import android.util.Log
 import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
+import com.example.directorduck_v10.adapters.AnswerSheetAdapter
+import com.example.directorduck_v10.adapters.GridSpacingItemDecoration
+import com.example.directorduck_v10.adapters.QuestionPagerAdapter
 import com.example.directorduck_v10.data.api.RandomQuestionRequest
 import com.example.directorduck_v10.data.model.User
 import com.example.directorduck_v10.data.network.ApiClient
 import com.example.directorduck_v10.databinding.ActivityQuizBinding
-import com.example.directorduck_v10.fragments.practice.adapters.QuestionPagerAdapter
 import com.example.directorduck_v10.fragments.practice.data.Question
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 
 class QuizActivity : BaseActivity() {
 
@@ -29,6 +34,41 @@ class QuizActivity : BaseActivity() {
     private var subcategoryId: Int = -1
     private var subcategoryName: String? = null
     private var questionCount: Int = 10
+
+    // --- 计时器相关变量 ---
+    private var startTimeMillis: Long = 0L
+    private var elapsedTimeMillis: Long = 0L
+    private var isTimerRunning = false
+    private val handler = Handler(Looper.getMainLooper())
+    private val updateTimerRunnable = object : Runnable {
+        override fun run() {
+            if (isTimerRunning) {
+                elapsedTimeMillis = SystemClock.elapsedRealtime() - startTimeMillis
+                updateTimerText()
+                handler.postDelayed(this, 1000)
+            }
+        }
+    }
+
+    // --- 答题结果统计变量 ---
+    private val userAnswers = mutableMapOf<Long, String>()          // qId -> userAnswer (A/B/C/D)
+    private val correctAnswers = mutableMapOf<Long, String>()       // qId -> correctAnswer
+    private val questionStatus = mutableMapOf<Long, String>()       // qId -> "correct"/"incorrect"/"unanswered"
+    private val questionAnswered = mutableMapOf<Long, Boolean>()    // qId -> answered?
+
+    // --- 答题卡 BottomSheet ---
+    private var answerSheetDialog: BottomSheetDialog? = null
+    private var answerSheetAdapter: AnswerSheetAdapter? = null
+    private var answerSheetDecorationAdded = false
+
+    // --- 每题耗时（累计在该题停留的时间） ---
+    private val questionTimeSpentMillis = mutableMapOf<Long, Long>()
+    private var currentPageIndex: Int = 0
+    private var currentPageStartRealtime: Long = 0L
+
+    // --- 本次练习时间戳（给后端存记录用） ---
+    private var attemptStartEpochMillis: Long = 0L
+    private var attemptEndEpochMillis: Long = 0L
 
     companion object {
         const val EXTRA_CATEGORY_ID = "category_id"
@@ -58,6 +98,9 @@ class QuizActivity : BaseActivity() {
             }
             context.startActivity(intent)
         }
+
+        const val EXTRA_TOTAL_QUESTIONS = "total_questions"
+        const val EXTRA_TIME_SPENT = "time_spent"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,22 +108,16 @@ class QuizActivity : BaseActivity() {
         binding = ActivityQuizBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 获取用户信息和参数
-        if (!initData()) {
-            return
-        }
+        if (!initData()) return
 
-        // 设置UI
         setupUI()
-
-        // 加载题目
         loadQuestions()
 
-        binding.back.setOnClickListener{finish()}
+        binding.back.setOnClickListener { finish() }
     }
 
     private fun initData(): Boolean {
-        try {
+        return try {
             currentUser = intent.getSerializableExtra("user") as User
             categoryId = intent.getIntExtra(EXTRA_CATEGORY_ID, -1)
             categoryName = intent.getStringExtra(EXTRA_CATEGORY_NAME)
@@ -89,67 +126,201 @@ class QuizActivity : BaseActivity() {
             questionCount = intent.getIntExtra(EXTRA_QUESTION_COUNT, 10)
 
             Log.d(TAG, "获取到用户信息: ID=${currentUser.id}, Username=${currentUser.username}")
-            return true
+            true
         } catch (e: Exception) {
-            Log.e(TAG, "获取数据失败: ${e.message}")
+            Log.e(TAG, "获取数据失败: ${e.message}", e)
             Toast.makeText(this, "数据获取失败", Toast.LENGTH_SHORT).show()
             finish()
-            return false
+            false
         }
     }
 
     private fun setupUI() {
-        // 设置顶部信息
+        binding.ivPen.setOnClickListener { showDraftOverlay() }
+        binding.btnDraftClose.setOnClickListener { hideDraftOverlay() }
+        binding.btnDraftClear.setOnClickListener { binding.draftView.clear() }
+        binding.btnDraftUndo.setOnClickListener { binding.draftView.undo() }
+
         binding.tvCategoryInfo.text = when {
             subcategoryName != null -> "专项练习(${subcategoryName})"
             categoryName != null -> "专项练习(${categoryName})"
             else -> "答题练习"
         }
 
+        initTimer()
 
-        // 设置ViewPager
         questionPagerAdapter = QuestionPagerAdapter(
             questions,
             onAnswerSelected = { questionId, selectedOption ->
-                // 处理答案选择
                 Log.d(TAG, "题目 $questionId 选择了选项: $selectedOption")
+
+                userAnswers[questionId] = selectedOption
+                questionAnswered[questionId] = true
+
+                // 答题卡打开时，立刻刷新题号颜色
+                answerSheetAdapter?.refresh()
+
+                fetchAndCheckAnswer(questionId, selectedOption)
             },
-            onSubmitClick = { questionId, selectedOption ->
-                // 处理提交答案
-                if (selectedOption.isEmpty()) {
-                    Toast.makeText(this, "请选择一个答案", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "提交答案: $selectedOption", Toast.LENGTH_SHORT).show()
-                    // 这里可以添加答案验证逻辑
-                    moveToNextQuestion()
-                }
+            onSubmitClick = { _, selectedOption ->
+                Toast.makeText(this, "提交答案: $selectedOption", Toast.LENGTH_SHORT).show()
+                moveToNextQuestion()
             }
         )
 
         binding.viewPagerQuestions.adapter = questionPagerAdapter
 
-        // 设置页面切换监听器
         binding.viewPagerQuestions.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
+
+                // 记录上一题耗时
+                recordCurrentQuestionTime()
+
+                // 切换到新题，重置基准
+                currentPageIndex = position
+                currentPageStartRealtime = SystemClock.elapsedRealtime()
+
                 updateProgressIndicator()
             }
         })
+
+        // 点击答题卡图标弹出底部抽屉
+        binding.ivAnswersheet.setOnClickListener { showAnswerSheetDialog() }
+    }
+
+    private fun showDraftOverlay() {
+        binding.draftOverlay.visibility = android.view.View.VISIBLE
+    }
+
+    private fun hideDraftOverlay() {
+        binding.draftOverlay.visibility = android.view.View.GONE
+    }
+
+    private fun showAnswerSheetDialog() {
+        if (questions.isEmpty()) return
+
+        if (answerSheetDialog == null) {
+            val dialog = BottomSheetDialog(this)
+            val view = layoutInflater.inflate(R.layout.dialog_answer_sheet, null, false)
+
+            val rv = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvAnswerSheet)
+            val btnSubmitPaper = view.findViewById<android.widget.Button>(R.id.btnSubmitPaper)
+
+            btnSubmitPaper.setOnClickListener {
+                val unanswered = questions.count { q -> questionAnswered[q.id] != true }
+                if (unanswered > 0) {
+                    Toast.makeText(this, "还有 $unanswered 题未作答，已为你直接交卷", Toast.LENGTH_SHORT).show()
+                }
+                answerSheetDialog?.dismiss()
+                calculateAndShowResult()
+            }
+
+            rv.layoutManager = GridLayoutManager(this, 5)
+
+            if (!answerSheetDecorationAdded) {
+                rv.addItemDecoration(
+                    GridSpacingItemDecoration(
+                        spanCount = 5,
+                        spacingH = dpToPx(16),
+                        spacingV = dpToPx(24),
+                        includeEdge = true
+                    )
+                )
+                answerSheetDecorationAdded = true
+            }
+
+            answerSheetAdapter = AnswerSheetAdapter(
+                total = questions.size,
+                isAnswered = { position ->
+                    val qId = questions[position].id
+                    questionAnswered[qId] == true
+                },
+                onClick = { position ->
+                    binding.viewPagerQuestions.setCurrentItem(position, false)
+                    answerSheetDialog?.dismiss()
+                }
+            )
+
+            rv.adapter = answerSheetAdapter
+            dialog.setContentView(view)
+            answerSheetDialog = dialog
+        }
+
+        answerSheetAdapter?.refresh()
+        answerSheetDialog?.show()
+    }
+
+    private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
+
+    private fun fetchAndCheckAnswer(questionId: Long, userAnswer: String) {
+        val question = questions.find { it.id == questionId }
+        if (question == null || question.uuid == null) {
+            questionStatus[questionId] = "unanswered"
+            Log.e(TAG, "找不到题目ID为 $questionId 的UUID")
+            return
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = ApiClient.practiceService.getQuestionAnswerByUuid(question.uuid!!)
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    if (apiResponse?.code == 200 && apiResponse.data != null) {
+                        val correctAnswer = apiResponse.data.correctAnswer
+                        correctAnswers[questionId] = correctAnswer
+                        val status = if (userAnswer == correctAnswer) "correct" else "incorrect"
+                        questionStatus[questionId] = status
+                    } else {
+                        questionStatus[questionId] = "unanswered"
+                    }
+                } else {
+                    questionStatus[questionId] = "unanswered"
+                }
+            } catch (e: Exception) {
+                questionStatus[questionId] = "unanswered"
+                Log.e(TAG, "获取正确答案网络错误: ${e.message}, 题目ID: $questionId", e)
+            }
+        }
+    }
+
+    private fun initTimer() {
+        elapsedTimeMillis = 0L
+        isTimerRunning = false
+        updateTimerText()
+    }
+
+    private fun startTimer() {
+        if (!isTimerRunning) {
+            startTimeMillis = SystemClock.elapsedRealtime() - elapsedTimeMillis
+            isTimerRunning = true
+            handler.post(updateTimerRunnable)
+        }
+    }
+
+    private fun stopTimer() {
+        if (isTimerRunning) {
+            isTimerRunning = false
+            handler.removeCallbacks(updateTimerRunnable)
+        }
+    }
+
+    private fun updateTimerText() {
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(elapsedTimeMillis)
+        val minutes = TimeUnit.SECONDS.toMinutes(seconds)
+        val remainingSeconds = seconds - TimeUnit.MINUTES.toSeconds(minutes)
+        binding.tvTime.text = String.format("%02d:%02d", minutes, remainingSeconds)
     }
 
     private fun loadQuestions() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // 构造请求参数
                 val request = RandomQuestionRequest(
                     categoryId = if (subcategoryId == -1) categoryId else null,
                     subcategoryId = if (subcategoryId != -1) subcategoryId else null,
                     count = questionCount
                 )
 
-                Log.d(TAG, "请求参数: categoryId=${request.categoryId}, subcategoryId=${request.subcategoryId}, count=${request.count}")
-
-                // 调用API获取随机题目
                 val response = ApiClient.practiceService.getRandomQuestions(request)
 
                 if (response.isSuccessful) {
@@ -164,27 +335,38 @@ class QuizActivity : BaseActivity() {
                             if (questions.isEmpty()) {
                                 Toast.makeText(this@QuizActivity, "没有找到相关题目", Toast.LENGTH_SHORT).show()
                                 finish()
-                            }
+                            } else {
+                                // 本次练习开始时间（给后端）
+                                attemptStartEpochMillis = System.currentTimeMillis()
 
-                            Log.d(TAG, "成功加载 ${questions.size} 道题目")
+                                // 初始化每题耗时记录基准
+                                currentPageIndex = binding.viewPagerQuestions.currentItem
+                                currentPageStartRealtime = SystemClock.elapsedRealtime()
+
+                                startTimer()
+                            }
                         }
                     } else {
                         withContext(Dispatchers.Main) {
-                            val errorMsg = apiResponse?.message ?: "加载题目失败"
-                            Toast.makeText(this@QuizActivity, errorMsg, Toast.LENGTH_SHORT).show()
-                            Log.e(TAG, "API返回错误: $errorMsg")
+                            Toast.makeText(
+                                this@QuizActivity,
+                                apiResponse?.message ?: "加载题目失败",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@QuizActivity, "服务器响应错误: ${response.code()}", Toast.LENGTH_SHORT).show()
-                        Log.e(TAG, "服务器响应错误: ${response.code()}")
+                        Toast.makeText(
+                            this@QuizActivity,
+                            "服务器响应错误: ${response.code()}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@QuizActivity, "网络错误: ${e.message}", Toast.LENGTH_SHORT).show()
-                    Log.e(TAG, "网络错误: ${e.message}")
                 }
             }
         }
@@ -192,8 +374,7 @@ class QuizActivity : BaseActivity() {
 
     private fun updateProgressIndicator() {
         val currentPosition = binding.viewPagerQuestions.currentItem + 1
-        val totalQuestions = questions.size
-        binding.tvProgress.text = "$currentPosition/$totalQuestions"
+        binding.tvProgress.text = "$currentPosition/${questions.size}"
     }
 
     private fun moveToNextQuestion() {
@@ -201,9 +382,136 @@ class QuizActivity : BaseActivity() {
         if (currentPosition < questions.size - 1) {
             binding.viewPagerQuestions.currentItem = currentPosition + 1
         } else {
-            // 最后一题，可以显示结果或结束练习
-            Toast.makeText(this, "练习完成！", Toast.LENGTH_SHORT).show()
-            // 这里可以跳转到结果页面
+            calculateAndShowResult()
         }
+    }
+
+    private fun calculateAndShowResult() {
+        // ✅ 先记最后一题耗时
+        recordCurrentQuestionTime()
+
+        stopTimer()
+        attemptEndEpochMillis = System.currentTimeMillis()
+
+        val totalQuestions = questions.size
+        var correctCount = 0
+        var incorrectCount = 0
+        var unansweredCount = 0
+
+        for (q in questions) {
+            val qId = q.id
+            val isAnswered = questionAnswered[qId] == true
+            val status = questionStatus[qId] ?: "unanswered"
+
+            if (isAnswered) {
+                when (status) {
+                    "correct" -> correctCount++
+                    "incorrect" -> incorrectCount++
+                    "unanswered" -> incorrectCount++ // 获取答案失败按错算（你的原逻辑）
+                    else -> incorrectCount++
+                }
+            } else {
+                unansweredCount++
+            }
+        }
+
+        val correctRate = if (totalQuestions > 0) {
+            (correctCount.toDouble() / totalQuestions * 100).toInt()
+        } else 0
+
+        // ✅ 错题 uuid + 用户错选答案（一一对应）
+        val wrongUuids = arrayListOf<String>()
+        val wrongUserAnswers = arrayListOf<String>()
+
+        for (q in questions) {
+            val qId = q.id
+            val status = questionStatus[qId] ?: "unanswered"
+            if (questionAnswered[qId] == true && status == "incorrect") {
+                val uuid = q.uuid
+                val ua = userAnswers[qId] // A/B/C/D
+                if (!uuid.isNullOrBlank() && !ua.isNullOrBlank()) {
+                    wrongUuids.add(uuid)
+                    wrongUserAnswers.add(ua)
+                }
+            }
+        }
+
+        // ✅ 每题耗时（两个 LongArray 平行传递）
+        val timeQids = LongArray(questions.size)
+        val timeMillis = LongArray(questions.size)
+        for (i in questions.indices) {
+            val qId = questions[i].id
+            timeQids[i] = qId
+            timeMillis[i] = questionTimeSpentMillis[qId] ?: 0L
+        }
+
+        val intent = Intent(this, ResultActivity::class.java).apply {
+            putExtra(EXTRA_TOTAL_QUESTIONS, totalQuestions)
+            putExtra(EXTRA_TIME_SPENT, elapsedTimeMillis)
+            putExtra(EXTRA_CATEGORY_NAME, categoryName ?: subcategoryName ?: "未知分类")
+
+            putExtra(ResultActivity.EXTRA_CORRECT_COUNT, correctCount)
+            putExtra(ResultActivity.EXTRA_INCORRECT_COUNT, incorrectCount)
+            putExtra(ResultActivity.EXTRA_UNANSWERED_COUNT, unansweredCount)
+            putExtra(ResultActivity.EXTRA_CORRECT_RATE, correctRate)
+
+            putStringArrayListExtra(ResultActivity.EXTRA_WRONG_UUIDS, wrongUuids)
+            putStringArrayListExtra(ResultActivity.EXTRA_WRONG_USER_ANSWERS, wrongUserAnswers)
+
+            putExtra(ResultActivity.EXTRA_TIME_QIDS, timeQids)
+            putExtra(ResultActivity.EXTRA_TIME_MILLIS, timeMillis)
+
+            putExtra(ResultActivity.EXTRA_ATTEMPT_START_EPOCH, attemptStartEpochMillis)
+            putExtra(ResultActivity.EXTRA_ATTEMPT_END_EPOCH, attemptEndEpochMillis)
+
+            // 可选：后面存库更方便
+            putExtra("user_id", currentUser.id)
+            putExtra("category_id", categoryId)
+            putExtra("subcategory_id", subcategoryId)
+        }
+
+        startActivity(intent)
+        finish()
+    }
+
+    private fun recordCurrentQuestionTime() {
+        if (questions.isEmpty()) return
+        if (currentPageStartRealtime == 0L) return
+
+        val q = questions.getOrNull(currentPageIndex) ?: return
+        val now = SystemClock.elapsedRealtime()
+        val delta = now - currentPageStartRealtime
+
+        val prev = questionTimeSpentMillis[q.id] ?: 0L
+        questionTimeSpentMillis[q.id] = prev + delta
+
+        currentPageStartRealtime = now
+    }
+
+    override fun onBackPressed() {
+        if (binding.draftOverlay.visibility == android.view.View.VISIBLE) {
+            hideDraftOverlay()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopTimer()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (questions.isNotEmpty()) {
+            startTimer()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopTimer()
+        answerSheetDialog?.dismiss()
+        answerSheetDialog = null
     }
 }

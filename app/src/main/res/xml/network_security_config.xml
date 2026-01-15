@@ -13,9 +13,7 @@
     </domain-config>
 
 
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">192.168.0.101</domain>
-    </domain-config>
+
 
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">192.168.0.102</domain>
@@ -47,6 +45,10 @@
 
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">192.168.0.105</domain>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">192.168.0.101</domain>
     </domain-config>
 
 

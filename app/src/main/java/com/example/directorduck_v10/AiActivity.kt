@@ -1,118 +1,152 @@
 package com.example.directorduck_v10
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.animation.AnimationUtils
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.directorduck_v10.databinding.ActivityAiBinding
-import com.example.directorduck_v10.fragments.ai.adapters.ChatAdapter
-import com.example.directorduck_v10.fragments.ai.model.ChatMessage
-import com.example.directorduck_v10.fragments.ai.network.KimiApiService
+import com.example.directorduck_v10.adapters.ChatAdapter
+import com.example.directorduck_v10.data.api.deepseek.Message
+import com.example.directorduck_v10.data.api.deepseek.ProxyChatRequest
+import com.example.directorduck_v10.data.model.ChatMessage
+import com.example.directorduck_v10.data.network.ApiClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AiActivity : BaseActivity() {
 
-    private lateinit var binding: ActivityAiBinding
-
-    private val messageList = mutableListOf<ChatMessage>()
+    private lateinit var binding: com.example.directorduck_v10.databinding.ActivityAiBinding
     private lateinit var chatAdapter: ChatAdapter
 
-    private val handler = Handler(Looper.getMainLooper())
-    private var thinkingRunnable: Runnable? = null
-    private var dotCount = 0
+    // ✅ 固定默认模型（只用一个）
+    private val selectedModel: String = "deepseek-chat"
+    // 如果你想默认用深度思考，就改成：
+    // private val selectedModel: String = "deepseek-reasoner"
+
+    // ✅ 保存历史（让它记住上下文）
+    private val conversationHistory = mutableListOf<Message>()
+
+    private var thinkingJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAiBinding.inflate(layoutInflater)
+        binding = com.example.directorduck_v10.databinding.ActivityAiBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 设置 RecyclerView
-        chatAdapter = ChatAdapter(messageList)
+        initRecycler()
+        initSendIconWatcher()
+
+        binding.ivBack.setOnClickListener { finish() }
+        binding.ivSend.setOnClickListener { sendMessage() }
+    }
+
+    private fun initRecycler() {
+        chatAdapter = ChatAdapter(mutableListOf())
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = chatAdapter
+    }
 
-        // 输入监听
+    // ✅ 输入框有内容：send_pressed；无内容：send_normal
+    private fun initSendIconWatcher() {
+        fun refreshIcon() {
+            val hasText = !binding.etAiinput.text.isNullOrBlank()
+            binding.ivSend.setImageResource(if (hasText) R.drawable.send_pressed else R.drawable.send_normal)
+        }
+        refreshIcon()
+
         binding.etAiinput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.ivSend.setImageResource(
-                    if (!s.isNullOrEmpty()) R.drawable.send_pressed
-                    else R.drawable.send_normal
-                )
-            }
-            override fun afterTextChanged(s: Editable?) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = refreshIcon()
+            override fun afterTextChanged(s: Editable?) = refreshIcon()
         })
+    }
 
-        // 发送按钮点击事件
-        binding.ivSend.setOnClickListener {
-            val question = binding.etAiinput.text.toString().trim()
-            if (question.isNotEmpty()) {
-                val anim = AnimationUtils.loadAnimation(this, R.anim.send_button_click)
-                binding.ivSend.startAnimation(anim)
+    private fun sendMessage() {
+        val text = binding.etAiinput.text?.toString()?.trim().orEmpty()
+        if (text.isBlank()) {
+            Toast.makeText(this, "请输入问题", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-                binding.etAiinput.setText("")
-                binding.ivSend.setImageResource(R.drawable.send_normal)
+        // ✅ history 不包含本次 question（因为后端还有 question 字段）
+        val historySnapshot = conversationHistory.toList()
 
-                addMessage("user", question)
-                addMessage("assistant", "鸭局长皱着鸭眉思考中\uD83E\uDD14")
-                startThinkingAnimation()
+        chatAdapter.addMessage(ChatMessage(isUser = true, text = text))
+        scrollToBottom()
 
-                val recentHistory = messageList.takeLast(20)
-                KimiApiService.askKimi(recentHistory, question) { reply ->
-                    runOnUiThread {
-                        stopThinkingAnimation()
-                        messageList.removeLast()
-                        chatAdapter.notifyItemRemoved(messageList.size)
+        // ✅ 本次用户消息写入历史（供下一轮使用）
+        conversationHistory.add(Message(role = "user", content = text))
 
-                        if (reply != null) {
-                            addMessage("assistant", reply)
-                        } else {
-                            addMessage("assistant", "哎呀，鸭局长正在开会，请稍后再试试~")
-                        }
+        binding.etAiinput.setText("")
+
+        // AI 占位 + 动态点点点
+        chatAdapter.addMessage(ChatMessage(isUser = false, text = "鸭局长正在思考中"))
+        val thinkingIndex = chatAdapter.itemCount - 1
+        startThinkingDots(thinkingIndex)
+        scrollToBottom()
+
+        lifecycleScope.launch {
+            val req = ProxyChatRequest(
+                model = selectedModel,
+                question = text,
+                history = historySnapshot.takeLast(20)
+            )
+
+            try {
+                val resp = withContext(Dispatchers.IO) {
+                    ApiClient.deepSeekService.chat(req)
+                }
+
+                stopThinkingDots()
+
+                if (resp.isSuccessful) {
+                    val body = resp.body()
+                    val answer = if (body?.code == 200 && body.data != null) {
+                        body.data.answer
+                    } else {
+                        "出错了：${body?.message ?: "未知错误"}"
                     }
+
+                    chatAdapter.updateLastAiMessage(answer)
+                    conversationHistory.add(Message(role = "assistant", content = answer))
+                } else {
+                    chatAdapter.updateLastAiMessage("服务器错误：HTTP ${resp.code()}")
                 }
+            } catch (e: Exception) {
+                stopThinkingDots()
+                chatAdapter.updateLastAiMessage("网络异常：${e.message ?: "unknown"}")
+            }
+
+            scrollToBottom()
+        }
+    }
+
+    private fun startThinkingDots(aiMsgIndex: Int) {
+        stopThinkingDots()
+        thinkingJob = lifecycleScope.launch {
+            var dots = 0
+            while (true) {
+                dots = (dots + 1) % 4
+                val suffix = ".".repeat(dots)
+                chatAdapter.updateMessageAt(aiMsgIndex, "鸭局长正在思考中$suffix")
+                delay(350)
             }
         }
+    }
 
-        // 返回按钮逻辑
-        binding.ivBack.setOnClickListener {
-            finish() // 结束当前 Activity，返回上一个页面
+    private fun stopThinkingDots() {
+        thinkingJob?.cancel()
+        thinkingJob = null
+    }
+
+    private fun scrollToBottom() {
+        binding.recyclerView.post {
+            val count = chatAdapter.itemCount
+            if (count > 0) binding.recyclerView.scrollToPosition(count - 1)
         }
-    }
-
-    private fun addMessage(role: String, content: String) {
-        messageList.add(ChatMessage(role, content))
-        chatAdapter.notifyItemInserted(messageList.size - 1)
-        binding.recyclerView.scrollToPosition(messageList.size - 1)
-    }
-
-    private fun startThinkingAnimation() {
-        dotCount = 0
-        thinkingRunnable = object : Runnable {
-            override fun run() {
-                if (messageList.isNotEmpty() && messageList.last().role == "assistant") {
-                    val base = "鸭局长皱着鸭眉思考中\uD83E\uDD14"
-                    val dots = ".".repeat(dotCount % 4)
-                    messageList[messageList.size - 1] = ChatMessage("assistant", base + dots)
-                    chatAdapter.notifyItemChanged(messageList.size - 1)
-                    dotCount++
-                    handler.postDelayed(this, 500)
-                }
-            }
-        }
-        handler.post(thinkingRunnable!!)
-    }
-
-    private fun stopThinkingAnimation() {
-        thinkingRunnable?.let { handler.removeCallbacks(it) }
-        thinkingRunnable = null
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        stopThinkingAnimation()
     }
 }

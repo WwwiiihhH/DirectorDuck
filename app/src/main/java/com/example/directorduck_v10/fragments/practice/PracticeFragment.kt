@@ -19,7 +19,7 @@ import com.example.directorduck_v10.data.network.ApiClient
 import com.example.directorduck_v10.databinding.FragmentPracticeBinding
 import com.example.directorduck_v10.fragments.practice.adapters.BannerAdapter
 import com.example.directorduck_v10.fragments.practice.adapters.HorizontalImageAdapter
-import com.example.directorduck_v10.fragments.practice.adapters.PracticeAdapter
+import com.example.directorduck_v10.adapters.PracticeAdapter
 import com.example.directorduck_v10.fragments.practice.data.Category
 import com.example.directorduck_v10.fragments.practice.data.ImageItem
 import com.example.directorduck_v10.fragments.practice.data.PracticeItem

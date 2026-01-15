@@ -1,10 +1,10 @@
-package com.example.directorduck_v10.fragments.practice.adapters
+package com.example.directorduck_v10.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.directorduck_v10.R
-import com.example.directorduck_v10.activities.quiz.QuestionViewHolder
+import com.example.directorduck_v10.adapters.QuestionViewHolder // 修改导入路径
 import com.example.directorduck_v10.fragments.practice.data.Question
 
 
@@ -26,7 +26,7 @@ class QuestionPagerAdapter(
     }
 
     override fun getItemCount(): Int = questions.size
-    
+
     fun getQuestion(position: Int): Question? {
         return if (position >= 0 && position < questions.size) {
             questions[position]

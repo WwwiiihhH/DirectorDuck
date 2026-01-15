@@ -183,22 +183,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_comment_title" />
 
-            <!-- 占位提示 -->
-            <TextView
-                android:id="@+id/tv_comment_placeholder"
-                android:layout_width="0dp"
-                android:layout_height="200dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginEnd="16dp"
-                android:gravity="center"
-                android:text="评论功能即将上线..."
-                android:textColor="@color/gray"
-                android:textSize="14sp"
-                android:background="@drawable/bg_comment_placeholder"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_comment_title" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

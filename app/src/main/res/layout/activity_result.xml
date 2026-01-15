@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg2">
+
+    <!-- 顶部固定标题栏（不滚动） -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/topBar"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 左侧返回按钮：MyButton，图片 id = back -->
+        <com.example.directorduck_v10.defItems.MyButton
+            android:id="@+id/btnBack"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@drawable/back"
+            android:contentDescription="back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <!-- 顶部居中标题 -->
+        <TextView
+            android:id="@+id/tvTopTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="练习报告"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#111827"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 内容滚动区域 -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:paddingBottom="24dp">
+
+            <!-- ✅ 你原来的 tvTitle 删除/不再需要（已放到 topBar） -->
+            <!-- 分类 + 用时 -->
+            <TextView
+                android:id="@+id/tvResultCategory"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="分类: "
+                android:textSize="14sp"
+                android:textColor="#6B7280"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <TextView
+                android:id="@+id/tvResultTimeSpent"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="用时: "
+                android:textSize="14sp"
+                android:textColor="#6B7280"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/tvResultCategory"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- 仪表盘卡片 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardGauge"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="6dp"
+                app:layout_constraintTop_toBottomOf="@id/tvResultTimeSpent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <com.example.directorduck_v10.views.GaugeView
+                        android:id="@+id/gaugeView"
+                        android:layout_width="0dp"
+                        android:layout_height="200dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/tvResultCorrectRate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="正确率"
+                        android:textSize="14sp"
+                        android:textColor="#6B7280"
+                        android:gravity="center"
+                        app:layout_constraintTop_toTopOf="@id/gaugeView"
+                        app:layout_constraintBottom_toBottomOf="@id/gaugeView"
+                        app:layout_constraintStart_toStartOf="@id/gaugeView"
+                        app:layout_constraintEnd_toEndOf="@id/gaugeView"/>
+
+                    <TextView
+                        android:id="@+id/tvRateBig"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="0%"
+                        android:textSize="42sp"
+                        android:textStyle="bold"
+                        android:textColor="#111827"
+                        android:gravity="center"
+                        app:layout_constraintTop_toBottomOf="@id/tvResultCorrectRate"
+                        app:layout_constraintStart_toStartOf="@id/gaugeView"
+                        app:layout_constraintEnd_toEndOf="@id/gaugeView"/>
+
+                    <TextView
+                        android:id="@+id/tvResultTotalQuestions"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="总题数: "
+                        android:textSize="14sp"
+                        android:textColor="#6B7280"
+                        android:gravity="center"
+                        android:layout_marginTop="6dp"
+                        app:layout_constraintTop_toBottomOf="@id/tvRateBig"
+                        app:layout_constraintStart_toStartOf="@id/gaugeView"
+                        app:layout_constraintEnd_toEndOf="@id/gaugeView"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 三个统计卡片 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardCorrect"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="6dp"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="4dp"
+                app:layout_constraintTop_toBottomOf="@id/cardGauge"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/cardIncorrect">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="正确"
+                        android:textColor="#6B7280"
+                        android:textSize="12sp"/>
+
+                    <TextView
+                        android:id="@+id/tvResultCorrectCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textStyle="bold"
+                        android:textSize="22sp"
+                        android:textColor="#10B981"
+                        android:layout_marginTop="6dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardIncorrect"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="6dp"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="4dp"
+                app:layout_constraintTop_toBottomOf="@id/cardGauge"
+                app:layout_constraintStart_toEndOf="@id/cardCorrect"
+                app:layout_constraintEnd_toStartOf="@id/cardUnanswered">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="错误"
+                        android:textColor="#6B7280"
+                        android:textSize="12sp"/>
+
+                    <TextView
+                        android:id="@+id/tvResultIncorrectCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textStyle="bold"
+                        android:textSize="22sp"
+                        android:textColor="#EF4444"
+                        android:layout_marginTop="6dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardUnanswered"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="4dp"
+                app:layout_constraintTop_toBottomOf="@id/cardGauge"
+                app:layout_constraintStart_toEndOf="@id/cardIncorrect"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="未作答"
+                        android:textColor="#6B7280"
+                        android:textSize="12sp"/>
+
+                    <TextView
+                        android:id="@+id/tvResultUnansweredCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textStyle="bold"
+                        android:textSize="22sp"
+                        android:textColor="#F59E0B"
+                        android:layout_marginTop="6dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- AI 点评卡片（骨架屏 + 加载条） -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardAiComment"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="4dp"
+                app:layout_constraintTop_toBottomOf="@id/cardCorrect"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:id="@+id/iv_aititle"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/logonew2"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"/>
+
+                    <TextView
+                        android:id="@+id/tvAiTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="鸭局长点评"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#111827"
+                        app:layout_constraintStart_toEndOf="@id/iv_aititle"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_marginStart="10dp"/>
+
+                    <ProgressBar
+                        android:id="@+id/pbAiCommentLoading"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:indeterminate="true"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tvAiTitle"
+                        app:layout_constraintBottom_toBottomOf="@id/tvAiTitle"/>
+
+                    <LinearLayout
+                        android:id="@+id/llAiSkeleton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toBottomOf="@id/tvAiTitle"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <View
+                            android:id="@+id/skeletonLine1"
+                            android:layout_width="match_parent"
+                            android:layout_height="12dp"
+                            android:background="@drawable/bg_skeleton_line"/>
+
+                        <View
+                            android:id="@+id/skeletonLine2"
+                            android:layout_width="match_parent"
+                            android:layout_height="12dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_skeleton_line"/>
+
+                        <View
+                            android:id="@+id/skeletonLine3"
+                            android:layout_width="match_parent"
+                            android:layout_height="12dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_skeleton_line"/>
+
+                        <View
+                            android:id="@+id/skeletonLine4"
+                            android:layout_width="220dp"
+                            android:layout_height="12dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_skeleton_line"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvAiComment"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="（点评内容）"
+                        android:textSize="14sp"
+                        android:textColor="#374151"
+                        android:lineSpacingExtra="4dp"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toBottomOf="@id/tvAiTitle"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

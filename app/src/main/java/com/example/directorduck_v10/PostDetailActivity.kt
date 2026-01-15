@@ -72,7 +72,8 @@ class PostDetailActivity : AppCompatActivity() {
             // 处理图片显示
             if (!post.imageUrl.isNullOrEmpty()) {
                 ivPostImage.visibility = View.VISIBLE
-                val fullImageUrl = "${ApiClient.getBaseUrl()}${post.imageUrl}"
+
+                val fullImageUrl = ApiClient.getHostUrl() + post.imageUrl
 
                 Glide.with(this@PostDetailActivity)
                     .load(fullImageUrl)
@@ -82,6 +83,7 @@ class PostDetailActivity : AppCompatActivity() {
             } else {
                 ivPostImage.visibility = View.GONE
             }
+
 
             // 设置点赞状态和数量
             updateLikeUI(post.isLiked)
@@ -166,8 +168,7 @@ class PostDetailActivity : AppCompatActivity() {
                     val apiResponse = response.body()
                     if (apiResponse != null && apiResponse.isSuccess()) {
                         val commentList = apiResponse.data ?: emptyList()
-                        updateCommentsList(commentList)
-                        updateCommentPlaceholderVisibility(commentList.isEmpty())
+                        updateCommentsList(commentList)   // ✅ 只更新列表，不做占位
                     } else {
                         showError("获取评论失败: ${apiResponse?.message ?: "未知错误"}")
                     }
@@ -182,6 +183,7 @@ class PostDetailActivity : AppCompatActivity() {
             }
         })
     }
+
 
     private fun sendComment() {
         val post = currentPost ?: return
@@ -220,8 +222,8 @@ class PostDetailActivity : AppCompatActivity() {
                             commentAdapter.addComment(newComment)
                             // 清空输入框
                             binding.etComment.setText("")
-                            // 隐藏占位提示
-                            updateCommentPlaceholderVisibility(false)
+
+
                             Toast.makeText(this@PostDetailActivity, "评论成功", Toast.LENGTH_SHORT).show()
                         }
                     } else {
@@ -246,10 +248,7 @@ class PostDetailActivity : AppCompatActivity() {
         commentAdapter.notifyDataSetChanged()
     }
 
-    private fun updateCommentPlaceholderVisibility(isEmpty: Boolean) {
-        binding.tvCommentPlaceholder.visibility = if (isEmpty) View.VISIBLE else View.GONE
-        binding.rvComments.visibility = if (isEmpty) View.GONE else View.VISIBLE
-    }
+
 
     private fun updateLikeUI(isLiked: Boolean) {
         if (isLiked) {
