@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 object ApiClient {
 
     // ✅ Retrofit 的 baseUrl 必须以 / 结尾
-    private const val BASE_URL = "http://192.168.0.103:8080/"
+    private const val BASE_URL = "http://192.168.0.105:8080/"
 
     // 你也可以按需切换
     // private const val BASE_URL = "http://47.111.144.28:8080/"

@@ -47,14 +47,16 @@ class PracticeFragment : Fragment() {
 
 
     private val bannerImages = listOf(
-        R.drawable.logonew,
-        R.drawable.logo,
-        R.drawable.logonew
+        R.drawable.banner1,
+        R.drawable.banner2,
+        R.drawable.banner3,
+        R.drawable.banner4,
+        R.drawable.banner5
     )
 
     private val horizontalItems = listOf(
         ImageItem(R.drawable.icon_100, "考试资讯"),
-        ImageItem(R.drawable.app_iocn_manager, "图像2"),
+        ImageItem(R.drawable.app_iocn_manager, "火眼金睛"),
         ImageItem(R.drawable.app_iocn_int, "图像3"),
         ImageItem(R.drawable.app_iocn_myhomework, "图像4")
     )
@@ -104,6 +106,13 @@ class PracticeFragment : Fragment() {
                 0 -> {
                     // 点击第一个按钮，跳转到NoticeActivity
                     val intent = android.content.Intent(requireContext(), com.example.directorduck_v10.NoticeActivity::class.java)
+                    startActivity(intent)
+                }
+                1 -> {
+                    val intent = android.content.Intent(
+                        requireContext(),
+                        com.example.directorduck_v10.CompareSizeGameActivity::class.java
+                    )
                     startActivity(intent)
                 }
                 else -> {

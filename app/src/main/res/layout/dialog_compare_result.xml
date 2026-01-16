@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="10dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/light_gray"
+    app:cardUseCompatPadding="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="18dp">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="作答结果"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="本局成绩已统计"
+            android:textColor="@color/gray"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 指标卡片：总题/正确/错误 -->
+        <LinearLayout
+            android:id="@+id/layoutMetrics"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                app:cardCornerRadius="14dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/light_gray">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="总题"
+                        android:textColor="@color/gray"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="20"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                app:cardCornerRadius="14dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/light_gray">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="正确"
+                        android:textColor="@color/gray"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvCorrect"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="18"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cardCornerRadius="14dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/light_gray">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="错误"
+                        android:textColor="@color/gray"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvWrong"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <!-- 正确率 + 用时 -->
+        <TextView
+            android:id="@+id/tvAccuracyLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="正确率"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/layoutMetrics"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvAccuracy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="90%"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvAccuracyLabel"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressAccuracy"
+            android:layout_width="0dp"
+            android:layout_height="8dp"
+            android:layout_marginTop="8dp"
+            android:indeterminate="false"
+            app:trackCornerRadius="999dp"
+            app:layout_constraintTop_toBottomOf="@id/tvAccuracyLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="用时：00:45"
+            android:textColor="@color/gray"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/progressAccuracy"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 错题标题 -->
+        <TextView
+            android:id="@+id/tvWrongTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="错题"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/tvTime"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvNoWrong"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="无错题 🎉"
+            android:textColor="@color/gray"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:padding="12dp"
+            app:layout_constraintTop_toBottomOf="@id/tvWrongTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvWrong"
+            android:layout_width="0dp"
+            android:layout_height="220dp"
+            android:layout_marginTop="10dp"
+            android:overScrollMode="never"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/tvWrongTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 底部按钮 -->
+        <LinearLayout
+            android:id="@+id/layoutButtons"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/rvWrong"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAgain"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:text="再来一局" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnExit"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:text="退出" />
+
+        </LinearLayout>
+
+        <!-- 让按钮约束更稳：rvWrong/NoWrong 二选一时不塌 -->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/glBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintGuide_end="0dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

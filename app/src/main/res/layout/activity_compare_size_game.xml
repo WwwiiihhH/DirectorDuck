@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp"
+    android:background="@android:color/white">
+
+    <!-- Top bar -->
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:src="@drawable/back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1/20"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toTopOf="@id/btnBack"
+        app:layout_constraintBottom_toBottomOf="@id/btnBack"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/tvTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btnBack"
+        app:layout_constraintBottom_toBottomOf="@id/btnBack"/>
+
+    <!-- 当前题 -->
+    <TextView
+        android:id="@+id/tvCurLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="当前题"
+        android:textStyle="bold"
+        android:textColor="#111827"
+        android:textSize="16sp"
+        android:layout_marginTop="14dp"
+        app:layout_constraintTop_toBottomOf="@id/btnBack"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutCur"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:padding="12dp"
+        android:background="@drawable/bg_card_white"
+        app:layout_constraintTop_toBottomOf="@id/tvCurLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.example.directorduck_v10.defItems.FractionView
+            android:id="@+id/fvLeftCur"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvCircleCur"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="14dp"
+            android:gravity="center"
+            android:text=""
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:background="@drawable/bg_compare_circle"
+            app:layout_constraintStart_toEndOf="@id/fvLeftCur"
+            app:layout_constraintEnd_toStartOf="@id/fvRightCur"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <com.example.directorduck_v10.defItems.FractionView
+            android:id="@+id/fvRightCur"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 下一题预览 -->
+    <TextView
+        android:id="@+id/tvNextLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="下一题"
+        android:textStyle="bold"
+        android:textColor="#6B7280"
+        android:textSize="14sp"
+        android:layout_marginTop="14dp"
+        app:layout_constraintTop_toBottomOf="@id/layoutCur"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutNext"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:padding="12dp"
+        android:background="@drawable/bg_card_gray"
+        app:layout_constraintTop_toBottomOf="@id/tvNextLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.example.directorduck_v10.defItems.FractionView
+            android:id="@+id/fvLeftNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.75"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvCircleNext"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="14dp"
+            android:gravity="center"
+            android:text=""
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#6B7280"
+            android:background="@drawable/bg_compare_circle"
+            android:alpha="0.5"
+            app:layout_constraintStart_toEndOf="@id/fvLeftNext"
+            app:layout_constraintEnd_toStartOf="@id/fvRightNext"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <com.example.directorduck_v10.defItems.FractionView
+            android:id="@+id/fvRightNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.75"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 写题板控制 -->
+    <LinearLayout
+        android:id="@+id/layoutPadActions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/layoutNext"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btnUndo"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="撤销" />
+
+        <Button
+            android:id="@+id/btnClear"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:text="清空" />
+    </LinearLayout>
+
+
+    <com.example.directorduck_v10.fragments.practice.compare.view.HandwritePadView
+        android:id="@+id/handwritePad"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_pad"
+        app:layout_constraintTop_toBottomOf="@id/layoutPadActions"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
