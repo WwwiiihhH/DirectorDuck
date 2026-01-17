@@ -142,14 +142,14 @@ class MainActivity : BaseActivity() {
 
     private fun getCountdownText(): String {
         val targetDate = java.util.Calendar.getInstance().apply {
-            set(2025, java.util.Calendar.NOVEMBER, 29) // 月份是从0开始的
+            set(2026, java.util.Calendar.NOVEMBER, 30) // 月份是从0开始的
         }.time
 
         val currentDate = java.util.Date()
         val diffMillis = targetDate.time - currentDate.time
         val diffDays = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
 
-        return "距离2026年国考仅剩 $diffDays 天！"
+        return "距离2027年国考仅剩 $diffDays 天！"
     }
 
     private fun playAiIconAnimation() {

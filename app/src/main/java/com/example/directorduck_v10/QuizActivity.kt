@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
+import androidx.lifecycle.lifecycleScope
 
 class QuizActivity : BaseActivity() {
 
@@ -69,6 +70,11 @@ class QuizActivity : BaseActivity() {
     // --- 本次练习时间戳（给后端存记录用） ---
     private var attemptStartEpochMillis: Long = 0L
     private var attemptEndEpochMillis: Long = 0L
+
+    // --- 收藏相关 ---
+    private val favoriteStateByUuid = mutableMapOf<String, Boolean>() // 缓存：uuid -> 是否收藏
+    private var bookmarkQuerySeq = 0 // 防止快速滑动时旧请求覆盖新请求
+    private var bookmarkOpInFlight = false // 防止连点
 
     companion object {
         const val EXTRA_CATEGORY_ID = "category_id"
@@ -141,6 +147,10 @@ class QuizActivity : BaseActivity() {
         binding.btnDraftClear.setOnClickListener { binding.draftView.clear() }
         binding.btnDraftUndo.setOnClickListener { binding.draftView.undo() }
 
+        binding.ivBookmark.setOnClickListener {
+            toggleFavoriteForCurrentQuestion()
+        }
+
         binding.tvCategoryInfo.text = when {
             subcategoryName != null -> "专项练习(${subcategoryName})"
             categoryName != null -> "专项练习(${categoryName})"
@@ -150,23 +160,22 @@ class QuizActivity : BaseActivity() {
         initTimer()
 
         questionPagerAdapter = QuestionPagerAdapter(
-            questions,
+            questions = questions,
             onAnswerSelected = { questionId, selectedOption ->
-                Log.d(TAG, "题目 $questionId 选择了选项: $selectedOption")
-
                 userAnswers[questionId] = selectedOption
                 questionAnswered[questionId] = true
-
-                // 答题卡打开时，立刻刷新题号颜色
                 answerSheetAdapter?.refresh()
-
                 fetchAndCheckAnswer(questionId, selectedOption)
             },
             onSubmitClick = { _, selectedOption ->
                 Toast.makeText(this, "提交答案: $selectedOption", Toast.LENGTH_SHORT).show()
                 moveToNextQuestion()
+            },
+            getSelectedOption = { qId ->
+                userAnswers[qId]   // ✅ 关键：从 Activity 的 map 读取
             }
         )
+
 
         binding.viewPagerQuestions.adapter = questionPagerAdapter
 
@@ -182,6 +191,9 @@ class QuizActivity : BaseActivity() {
                 currentPageStartRealtime = SystemClock.elapsedRealtime()
 
                 updateProgressIndicator()
+
+                // ✅ 每次翻页刷新书签状态
+                refreshBookmarkForPosition(position)
             }
         })
 
@@ -329,20 +341,20 @@ class QuizActivity : BaseActivity() {
                         withContext(Dispatchers.Main) {
                             questions.clear()
                             questions.addAll(apiResponse.data)
+
                             questionPagerAdapter.notifyDataSetChanged()
                             updateProgressIndicator()
+
+                            // ✅ 第一题进来就刷新收藏状态
+                            refreshBookmarkForPosition(0)
 
                             if (questions.isEmpty()) {
                                 Toast.makeText(this@QuizActivity, "没有找到相关题目", Toast.LENGTH_SHORT).show()
                                 finish()
                             } else {
-                                // 本次练习开始时间（给后端）
                                 attemptStartEpochMillis = System.currentTimeMillis()
-
-                                // 初始化每题耗时记录基准
                                 currentPageIndex = binding.viewPagerQuestions.currentItem
                                 currentPageStartRealtime = SystemClock.elapsedRealtime()
-
                                 startTimer()
                             }
                         }
@@ -387,7 +399,6 @@ class QuizActivity : BaseActivity() {
     }
 
     private fun calculateAndShowResult() {
-        // ✅ 先记最后一题耗时
         recordCurrentQuestionTime()
 
         stopTimer()
@@ -407,7 +418,7 @@ class QuizActivity : BaseActivity() {
                 when (status) {
                     "correct" -> correctCount++
                     "incorrect" -> incorrectCount++
-                    "unanswered" -> incorrectCount++ // 获取答案失败按错算（你的原逻辑）
+                    "unanswered" -> incorrectCount++
                     else -> incorrectCount++
                 }
             } else {
@@ -419,7 +430,6 @@ class QuizActivity : BaseActivity() {
             (correctCount.toDouble() / totalQuestions * 100).toInt()
         } else 0
 
-        // ✅ 错题 uuid + 用户错选答案（一一对应）
         val wrongUuids = arrayListOf<String>()
         val wrongUserAnswers = arrayListOf<String>()
 
@@ -428,7 +438,7 @@ class QuizActivity : BaseActivity() {
             val status = questionStatus[qId] ?: "unanswered"
             if (questionAnswered[qId] == true && status == "incorrect") {
                 val uuid = q.uuid
-                val ua = userAnswers[qId] // A/B/C/D
+                val ua = userAnswers[qId]
                 if (!uuid.isNullOrBlank() && !ua.isNullOrBlank()) {
                     wrongUuids.add(uuid)
                     wrongUserAnswers.add(ua)
@@ -436,7 +446,6 @@ class QuizActivity : BaseActivity() {
             }
         }
 
-        // ✅ 每题耗时（两个 LongArray 平行传递）
         val timeQids = LongArray(questions.size)
         val timeMillis = LongArray(questions.size)
         for (i in questions.indices) {
@@ -464,7 +473,6 @@ class QuizActivity : BaseActivity() {
             putExtra(ResultActivity.EXTRA_ATTEMPT_START_EPOCH, attemptStartEpochMillis)
             putExtra(ResultActivity.EXTRA_ATTEMPT_END_EPOCH, attemptEndEpochMillis)
 
-            // 可选：后面存库更方便
             putExtra("user_id", currentUser.id)
             putExtra("category_id", categoryId)
             putExtra("subcategory_id", subcategoryId)
@@ -486,6 +494,107 @@ class QuizActivity : BaseActivity() {
         questionTimeSpentMillis[q.id] = prev + delta
 
         currentPageStartRealtime = now
+    }
+
+    private fun setBookmarkIcon(isFav: Boolean) {
+        val res = if (isFav) R.drawable.bookmark_pressed else R.drawable.bookmark
+        binding.ivBookmark.setBackgroundResource(res)
+    }
+
+    private fun refreshBookmarkForPosition(position: Int) {
+        val uuid = questions.getOrNull(position)?.uuid
+        if (uuid.isNullOrBlank()) {
+            setBookmarkIcon(false)
+            return
+        }
+
+        // 1) 有缓存就直接用
+        favoriteStateByUuid[uuid]?.let { cached ->
+            setBookmarkIcon(cached)
+            return
+        }
+
+        // 2) 没缓存：先显示未收藏，再异步查
+        setBookmarkIcon(false)
+
+        val seq = ++bookmarkQuerySeq
+        lifecycleScope.launch(Dispatchers.IO) {   // ✅ 注意这里是 lifecycleScope，不是 ifecycleScope
+            try {
+                val resp = ApiClient.favoriteService.exists(uuid, currentUser.id)
+                val isFav = resp.isSuccessful && resp.body()?.code == 200 && resp.body()?.data == true
+
+                withContext(Dispatchers.Main) {
+                    if (seq != bookmarkQuerySeq) return@withContext
+
+                    favoriteStateByUuid[uuid] = isFav
+                    val curUuid = questions.getOrNull(binding.viewPagerQuestions.currentItem)?.uuid
+                    if (curUuid == uuid) setBookmarkIcon(isFav)
+                }
+            } catch (_: Exception) {
+                // 网络错就保持默认未收藏，不要崩
+            }
+        }
+    }
+
+    private fun toggleFavoriteForCurrentQuestion() {
+        if (bookmarkOpInFlight) return
+
+        val position = binding.viewPagerQuestions.currentItem
+        val uuid = questions.getOrNull(position)?.uuid
+        if (uuid.isNullOrBlank()) return
+
+        val currentFav = favoriteStateByUuid[uuid] == true
+        val targetFav = !currentFav
+
+        bookmarkOpInFlight = true
+
+        // 先乐观更新UI
+        setBookmarkIcon(targetFav)
+
+        lifecycleScope.launch(Dispatchers.IO) {   // ✅ 统一用 lifecycleScope
+            try {
+                val resp = if (targetFav) {
+                    ApiClient.favoriteService.addFavorite(uuid, currentUser.id)
+                } else {
+                    ApiClient.favoriteService.removeFavorite(uuid, currentUser.id)
+                }
+
+                val ok = resp.isSuccessful && resp.body()?.code == 200
+
+                withContext(Dispatchers.Main) {
+                    if (ok) {
+                        favoriteStateByUuid[uuid] = targetFav
+                        val curUuid = questions.getOrNull(binding.viewPagerQuestions.currentItem)?.uuid
+                        if (curUuid == uuid) setBookmarkIcon(targetFav)
+                        Toast.makeText(
+                            this@QuizActivity,
+                            if (targetFav) "已收藏" else "已取消收藏",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        // 回滚
+                        favoriteStateByUuid[uuid] = currentFav
+                        val curUuid = questions.getOrNull(binding.viewPagerQuestions.currentItem)?.uuid
+                        if (curUuid == uuid) setBookmarkIcon(currentFav)
+                        Toast.makeText(
+                            this@QuizActivity,
+                            resp.body()?.message ?: "操作失败",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    // 回滚
+                    favoriteStateByUuid[uuid] = currentFav
+                    val curUuid = questions.getOrNull(binding.viewPagerQuestions.currentItem)?.uuid
+                    if (curUuid == uuid) setBookmarkIcon(currentFav)
+                    Toast.makeText(this@QuizActivity, "网络错误: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            } finally {
+                bookmarkOpInFlight = false
+            }
+        }
     }
 
     override fun onBackPressed() {

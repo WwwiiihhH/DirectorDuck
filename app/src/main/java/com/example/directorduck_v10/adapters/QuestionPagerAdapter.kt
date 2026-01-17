@@ -11,7 +11,8 @@ import com.example.directorduck_v10.fragments.practice.data.Question
 class QuestionPagerAdapter(
     private val questions: List<Question>,
     private val onAnswerSelected: (questionId: Long, selectedOption: String) -> Unit,
-    private val onSubmitClick: (questionId: Long, selectedOption: String) -> Unit
+    private val onSubmitClick: (questionId: Long, selectedOption: String) -> Unit,
+    private val getSelectedOption: (questionId: Long) -> String?   // ✅ 新增
 ) : RecyclerView.Adapter<QuestionViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuestionViewHolder {
@@ -22,7 +23,15 @@ class QuestionPagerAdapter(
 
     override fun onBindViewHolder(holder: QuestionViewHolder, position: Int) {
         val question = questions[position]
-        holder.bind(question, position, questions.size, onAnswerSelected, onSubmitClick)
+        val saved = getSelectedOption(question.id) // ✅ 取出已选项
+        holder.bind(
+            question = question,
+            position = position,
+            totalQuestions = questions.size,
+            savedSelectedOption = saved,            // ✅ 传进去恢复 UI
+            onAnswerSelected = onAnswerSelected,
+            onSubmitClick = onSubmitClick
+        )
     }
 
     override fun getItemCount(): Int = questions.size

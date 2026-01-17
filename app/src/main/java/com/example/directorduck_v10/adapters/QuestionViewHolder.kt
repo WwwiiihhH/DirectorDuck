@@ -37,6 +37,7 @@ class QuestionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         question: Question,
         position: Int,
         totalQuestions: Int, // 接收总题目数
+        savedSelectedOption: String?,
         onAnswerSelected: (Long, String) -> Unit,
         onSubmitClick: (Long, String) -> Unit
     ) {
@@ -48,6 +49,13 @@ class QuestionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         // 重置选项状态
         resetOptionStates()
         currentSelectedOption = ""
+
+        // ✅ 再恢复（关键）
+        if (!savedSelectedOption.isNullOrBlank()) {
+            currentSelectedOption = savedSelectedOption
+            updateOptionUI(savedSelectedOption)       // A/B/C/D 高亮
+        }
+
 
         // --- 关键修改：设置题目序号 ---
         tvQuestionIndex.text = "${position + 1}/$totalQuestions"

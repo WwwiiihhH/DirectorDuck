@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.directorduck_v10.FavoriteCollectionActivity
 import com.example.directorduck_v10.QuizActivity
 import com.example.directorduck_v10.R
 import com.example.directorduck_v10.data.network.ApiClient
@@ -56,8 +57,8 @@ class PracticeFragment : Fragment() {
 
     private val horizontalItems = listOf(
         ImageItem(R.drawable.icon_100, "考试资讯"),
-        ImageItem(R.drawable.app_iocn_manager, "火眼金睛"),
-        ImageItem(R.drawable.app_iocn_int, "图像3"),
+        ImageItem(R.drawable.app_iocn_int, "火眼金睛"),
+        ImageItem(R.drawable.app_iocn_manager, "收藏集"),
         ImageItem(R.drawable.app_iocn_myhomework, "图像4")
     )
 
@@ -114,6 +115,14 @@ class PracticeFragment : Fragment() {
                         com.example.directorduck_v10.CompareSizeGameActivity::class.java
                     )
                     startActivity(intent)
+                }
+                2 -> {
+                    val user = sharedUserViewModel.user.value
+                    if (user != null) {
+                        FavoriteCollectionActivity.start(requireContext(), user)
+                    } else {
+                        Toast.makeText(requireContext(), "请先登录", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 else -> {
                     Toast.makeText(requireContext(), "点击了：${item.title}", Toast.LENGTH_SHORT).show()

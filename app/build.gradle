@@ -97,6 +97,9 @@ dependencies {
     // 或者如果你使用Kotlin，也可以用kapt：
 //    kapt 'com.github.bumptech.glide:compiler:4.15.1'
 
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.2"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+
 
 
 }
