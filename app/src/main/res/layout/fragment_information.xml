@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.Information.InformationFragment">
+    tools:context=".feature.community.ui.InformationFragment">
 
 
 
@@ -19,7 +19,7 @@
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
-    <com.example.directorduck_v10.defItems.MyButton
+    <com.example.directorduck_v10.core.widget.MyButton
         android:id="@+id/Post_Button"
         android:layout_width="50dp"
         android:layout_height="50dp"

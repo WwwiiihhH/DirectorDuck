@@ -55,28 +55,28 @@
                 android:layout_marginTop="12dp"
                 android:orientation="vertical">
 
-                <com.example.directorduck_v10.defItems.OptionItem
+                <com.example.directorduck_v10.core.widget.OptionItem
                     android:id="@+id/optionA"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp" />
 
-                <com.example.directorduck_v10.defItems.OptionItem
+                <com.example.directorduck_v10.core.widget.OptionItem
                     android:id="@+id/optionB"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp" />
 
-                <com.example.directorduck_v10.defItems.OptionItem
+                <com.example.directorduck_v10.core.widget.OptionItem
                     android:id="@+id/optionC"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp" />
 
-                <com.example.directorduck_v10.defItems.OptionItem
+                <com.example.directorduck_v10.core.widget.OptionItem
                     android:id="@+id/optionD"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

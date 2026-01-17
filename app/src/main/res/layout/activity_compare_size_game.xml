@@ -64,7 +64,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.example.directorduck_v10.defItems.FractionView
+        <com.example.directorduck_v10.core.widget.FractionView
             android:id="@+id/fvLeftCur"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -89,7 +89,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <com.example.directorduck_v10.defItems.FractionView
+        <com.example.directorduck_v10.core.widget.FractionView
             android:id="@+id/fvRightCur"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -123,7 +123,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.example.directorduck_v10.defItems.FractionView
+        <com.example.directorduck_v10.core.widget.FractionView
             android:id="@+id/fvLeftNext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -150,7 +150,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <com.example.directorduck_v10.defItems.FractionView
+        <com.example.directorduck_v10.core.widget.FractionView
             android:id="@+id/fvRightNext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -188,7 +188,7 @@
     </LinearLayout>
 
 
-    <com.example.directorduck_v10.fragments.practice.compare.view.HandwritePadView
+    <com.example.directorduck_v10.core.widget.HandwritePadView
         android:id="@+id/handwritePad"
         android:layout_width="0dp"
         android:layout_height="0dp"

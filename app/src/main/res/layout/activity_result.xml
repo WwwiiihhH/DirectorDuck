@@ -19,7 +19,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <!-- 左侧返回按钮：MyButton，图片 id = back -->
-        <com.example.directorduck_v10.defItems.MyButton
+        <com.example.directorduck_v10.core.widget.MyButton
             android:id="@+id/btnBack"
             android:layout_width="25dp"
             android:layout_height="25dp"
@@ -104,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp">
 
-                    <com.example.directorduck_v10.views.GaugeView
+                    <com.example.directorduck_v10.core.widget.GaugeView
                         android:id="@+id/gaugeView"
                         android:layout_width="0dp"
                         android:layout_height="200dp"

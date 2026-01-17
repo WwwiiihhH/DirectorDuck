@@ -16,48 +16,48 @@
         android:theme="@style/Theme.DirectorDuckV10"
         tools:targetApi="31">
         <activity
-            android:name=".FavoriteCollectionActivity"
+            android:name=".feature.favorite.ui.FavoriteCollectionActivity"
             android:exported="false" />
         <activity
-            android:name=".CompareSizeGameActivity"
+            android:name=".feature.game.ui.CompareSizeGameActivity"
             android:exported="false" />
         <activity
-            android:name=".WrongReviewActivity"
+            android:name=".feature.practice.ui.WrongReviewActivity"
             android:exported="false"
             android:theme="@style/Theme.DirectorDuckV10" />
         <activity
-            android:name=".ResultActivity"
+            android:name=".feature.practice.ui.ResultActivity"
             android:exported="false"
             android:theme="@style/Theme.DirectorDuckV10" />
         <activity
-            android:name=".NoticeActivity"
+            android:name=".feature.notice.ui.NoticeActivity"
             android:exported="false" />
         <activity
-            android:name=".NoticeDetailActivity"
+            android:name=".feature.notice.ui.NoticeDetailActivity"
             android:exported="false" />
         <activity
-            android:name=".QuizActivity"
+            android:name=".feature.practice.ui.QuizActivity"
             android:exported="false" />
         <activity
-            android:name=".EditPostActivity"
+            android:name=".feature.community.ui.EditPostActivity"
             android:exported="false" />
         <activity
-            android:name=".CoursePlayerActivity"
+            android:name=".feature.course.ui.CoursePlayerActivity"
             android:exported="false" />
         <activity
-            android:name=".PostDetailActivity"
+            android:name=".feature.community.ui.PostDetailActivity"
             android:exported="false" />
         <activity
-            android:name=".AiActivity"
+            android:name=".feature.ai.ui.AiActivity"
             android:exported="false" />
         <activity
-            android:name=".RegisterActivity"
+            android:name=".feature.auth.ui.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".feature.auth.ui.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".SplashActivity"
+            android:name=".feature.home.ui.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -66,7 +66,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".feature.home.ui.MainActivity"
             android:exported="true">
 
             <!-- <intent-filter> -->

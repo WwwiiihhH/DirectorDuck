@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EditPostActivity"
+    tools:context=".feature.community.ui.EditPostActivity"
     android:padding="16dp">
 
     <TextView
@@ -50,7 +50,7 @@
         android:layout_marginTop="10dp"/>
 
 
-    <com.example.directorduck_v10.defItems.MyButton
+    <com.example.directorduck_v10.core.widget.MyButton
         android:id="@+id/btn_select_image"
         android:layout_width="50dp"
         android:layout_height="50dp"

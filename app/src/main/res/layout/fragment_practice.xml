@@ -47,7 +47,7 @@
 
         <!-- 自定义刷题按钮 -->
         <!-- 自定义刷题按钮 -->
-        <com.example.directorduck_v10.defItems.MyButton
+        <com.example.directorduck_v10.core.widget.MyButton
             android:id="@+id/btnCustomQuiz"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

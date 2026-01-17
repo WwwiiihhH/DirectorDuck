@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".QuizActivity">
+    tools:context=".feature.practice.ui.QuizActivity">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -50,7 +50,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.example.directorduck_v10.defItems.MyButton
+        <com.example.directorduck_v10.core.widget.MyButton
             android:id="@+id/back"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -80,7 +80,7 @@
             android:textSize="20sp"
             android:layout_marginStart="10sp"/>
 
-        <com.example.directorduck_v10.defItems.MyButton
+        <com.example.directorduck_v10.core.widget.MyButton
             android:id="@+id/iv_answersheet"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -90,7 +90,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="10dp"/>
 
-        <com.example.directorduck_v10.defItems.MyButton
+        <com.example.directorduck_v10.core.widget.MyButton
             android:id="@+id/iv_pen"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -100,7 +100,7 @@
             app:layout_constraintBottom_toBottomOf="@id/iv_answersheet"
             android:layout_marginEnd="20dp"/>
 
-        <com.example.directorduck_v10.defItems.MyButton
+        <com.example.directorduck_v10.core.widget.MyButton
             android:id="@+id/iv_bookmark"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -142,7 +142,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.example.directorduck_v10.views.DraftView
+        <com.example.directorduck_v10.core.widget.DraftView
             android:id="@+id/draftView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

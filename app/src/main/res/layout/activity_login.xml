@@ -113,7 +113,7 @@
         android:layout_marginEnd="8dp" />
 
     <!-- 登录按钮 -->
-    <com.example.directorduck_v10.defItems.MyButton
+    <com.example.directorduck_v10.core.widget.MyButton
         android:id="@+id/btnLogin"
         android:layout_width="0dp"
         android:layout_height="48dp"

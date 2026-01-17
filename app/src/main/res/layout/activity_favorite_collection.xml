@@ -14,7 +14,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.example.directorduck_v10.defItems.MyButton
+        <com.example.directorduck_v10.core.widget.MyButton
             android:id="@+id/back"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -47,7 +47,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <com.example.directorduck_v10.defItems.MyButton
+        <com.example.directorduck_v10.core.widget.MyButton
             android:id="@+id/iv_bookmark"
             android:layout_width="30dp"
             android:layout_height="30dp"

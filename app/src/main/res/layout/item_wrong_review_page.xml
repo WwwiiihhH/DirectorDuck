@@ -90,7 +90,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
-            <com.example.directorduck_v10.defItems.OptionItem
+            <com.example.directorduck_v10.core.widget.OptionItem
                 android:id="@+id/optionA"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -99,7 +99,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
-            <com.example.directorduck_v10.defItems.OptionItem
+            <com.example.directorduck_v10.core.widget.OptionItem
                 android:id="@+id/optionB"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -108,7 +108,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
-            <com.example.directorduck_v10.defItems.OptionItem
+            <com.example.directorduck_v10.core.widget.OptionItem
                 android:id="@+id/optionC"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -117,7 +117,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
-            <com.example.directorduck_v10.defItems.OptionItem
+            <com.example.directorduck_v10.core.widget.OptionItem
                 android:id="@+id/optionD"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

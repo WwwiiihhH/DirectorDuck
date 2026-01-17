@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.example.directorduck_v10.defItems.MyButton
+        <com.example.directorduck_v10.core.widget.MyButton
             android:id="@+id/btnBack"
             android:layout_width="25dp"
             android:layout_height="25dp"
