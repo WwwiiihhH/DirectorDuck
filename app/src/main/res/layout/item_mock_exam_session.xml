@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:layout_marginTop="4dp"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="2dp"
+    app:cardUseCompatPadding="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <TextView
+            android:id="@+id/tvSessionTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2027国考行测模考大赛（第四季）"
+            android:textColor="#111827"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+        <!-- 行测时间行 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_dot_orange"/>
+
+            <TextView
+                android:id="@+id/tvExamTimeLine"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:text="行测：2026年2月1日（周日）09:00-11:00"
+                android:textColor="#374151"
+                android:textSize="15sp"/>
+        </LinearLayout>
+
+        <!-- 查看考试说明 -->
+        <LinearLayout
+            android:id="@+id/layoutDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:clickable="true"
+            android:focusable="true">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_dot_orange"/>
+
+            <TextView
+                android:id="@+id/tvDesc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="查看考试说明"
+                android:textColor="#374151"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="›"
+                android:textSize="20sp"
+                android:textColor="#9CA3AF"/>
+        </LinearLayout>
+
+        <!-- 立即报名 / 进入考试 -->
+        <LinearLayout
+            android:id="@+id/btnJoinContainer"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/bg_orange_gradient_btn"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp">
+
+            <ImageView
+                android:id="@+id/ivJoinIcon"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/logonew2"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/tvJoinText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="立即报名"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:textSize="18sp"/>
+        </LinearLayout>
+
+        <!-- 报名人数 -->
+        <TextView
+            android:id="@+id/tvJoinCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="已有 0 人报名"
+            android:textColor="#9CA3AF"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tv_region_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="8dp"
+    android:background="@drawable/bg_region_unselected"
+    android:paddingHorizontal="14dp"
+    android:paddingVertical="6dp"
+    android:textColor="#757575"
+    android:textSize="13sp"
+    tools:text="全国" />

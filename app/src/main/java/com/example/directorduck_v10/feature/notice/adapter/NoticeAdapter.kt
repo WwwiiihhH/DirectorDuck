@@ -1,5 +1,9 @@
 package com.example.directorduck_v10.feature.notice.adapter
 
+import android.graphics.Color
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -22,9 +26,12 @@ class NoticeAdapter(
         val notice = notices[position]
         with(holder.binding) {
             tvTitle.text = notice.title
-            tvRecruitInfo.text = "招聘 ${notice.recruitCount} 人  ${notice.positionCount} 个岗位"
             tvCategory.text = notice.category
             tvTime.text = formatTime(notice.publishTime)
+
+            // 高级感处理：将数字变成蓝色
+            tvRecruitCount.text = getHighlightedText("招录 ${notice.recruitCount} 人", notice.recruitCount.toString())
+            tvPositionCount.text = getHighlightedText("岗位 ${notice.positionCount} 个", notice.positionCount.toString())
 
             root.setOnClickListener {
                 onItemClick?.invoke(notice)
@@ -32,9 +39,26 @@ class NoticeAdapter(
         }
     }
 
+    // 辅助函数：高亮文本中的数字部分
+    private fun getHighlightedText(fullText: String, highlightPart: String): SpannableString {
+        val spannable = SpannableString(fullText)
+        val startIndex = fullText.indexOf(highlightPart)
+        if (startIndex >= 0) {
+            // 设置为鸭局长蓝 #3E54AC
+            spannable.setSpan(
+                ForegroundColorSpan(Color.parseColor("#3E54AC")),
+                startIndex,
+                startIndex + highlightPart.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            // 可选：加粗数字
+            // spannable.setSpan(StyleSpan(Typeface.BOLD), startIndex, startIndex + highlightPart.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+        return spannable
+    }
+
     private fun formatTime(timeString: String): String {
         return try {
-            // 将 "2025-11-03 00:00:00" 格式转换为 "2025.11.03"
             if (timeString.length >= 10) {
                 timeString.substring(0, 10).replace("-", ".")
             } else {

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".feature.mockexam.ui.MockExamQuizActivity">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/llTopInfo"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHeight_percent="0.08"
+        android:layout_marginTop="30dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/llTopInfobottom"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHeight_percent="0.35">
+
+            <TextView
+                android:id="@+id/tvCategoryInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="专项练习(政治理论)"
+                android:textColor="@color/gray"
+                android:textStyle="bold"
+                android:layout_marginStart="10dp"/>
+
+            <TextView
+                android:id="@+id/tvProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1/10"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="15dp"/>
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.example.directorduck_v10.core.widget.MyButton
+            android:id="@+id/back"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/back"
+            app:layout_constraintBottom_toTopOf="@id/llTopInfobottom"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="10dp"/>
+
+        <ImageView
+            android:id="@+id/iv_clock"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/clock"
+            app:layout_constraintBottom_toTopOf="@id/llTopInfobottom"
+            app:layout_constraintStart_toEndOf="@id/back"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="@id/iv_clock"
+            app:layout_constraintBottom_toBottomOf="@id/iv_clock"
+            app:layout_constraintStart_toEndOf="@id/iv_clock"
+            android:textSize="20sp"
+            android:layout_marginStart="10sp"/>
+
+        <com.example.directorduck_v10.core.widget.MyButton
+            android:id="@+id/iv_answersheet"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/answersheet"
+            app:layout_constraintTop_toTopOf="@id/iv_clock"
+            app:layout_constraintBottom_toBottomOf="@id/iv_clock"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="10dp"/>
+
+        <com.example.directorduck_v10.core.widget.MyButton
+            android:id="@+id/iv_pen"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/pen2"
+            app:layout_constraintEnd_toStartOf="@id/iv_answersheet"
+            app:layout_constraintTop_toTopOf="@id/iv_answersheet"
+            app:layout_constraintBottom_toBottomOf="@id/iv_answersheet"
+            android:layout_marginEnd="20dp"/>
+
+        <com.example.directorduck_v10.core.widget.MyButton
+            android:id="@+id/iv_bookmark"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/bookmark"
+            app:layout_constraintEnd_toStartOf="@id/iv_pen"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintTop_toTopOf="@id/iv_pen"
+            app:layout_constraintBottom_toBottomOf="@id/iv_pen"/>
+
+
+
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!-- 题目ViewPager -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerQuestions"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/llTopInfo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 草稿蒙层：默认隐藏，显示时铺满全屏并拦截触摸 -->
+    <FrameLayout
+        android:id="@+id/draftOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.example.directorduck_v10.core.widget.DraftView
+            android:id="@+id/draftView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- 简单工具栏（可按需删减） -->
+        <!-- 右侧竖排工具栏 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_gravity="end|center_vertical"
+            android:padding="12dp">
+
+            <Button
+                android:id="@+id/btnDraftUndo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="撤销" />
+
+            <Button
+                android:id="@+id/btnDraftClear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="清空"
+                android:layout_marginTop="10dp" />
+
+            <Button
+                android:id="@+id/btnDraftClose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="关闭"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+
+
+    </FrameLayout>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

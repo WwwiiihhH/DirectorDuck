@@ -5,21 +5,23 @@ import android.animation.ObjectAnimator
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import android.view.animation.OvershootInterpolator
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import com.example.directorduck_v10.feature.ai.ui.AiActivity
 import com.example.directorduck_v10.R
 import com.example.directorduck_v10.core.base.BaseActivity
+import com.example.directorduck_v10.core.state.SharedUserViewModel
 import com.example.directorduck_v10.data.model.User
 import com.example.directorduck_v10.databinding.ActivityMainBinding
+import com.example.directorduck_v10.feature.ai.ui.AiActivity
 import com.example.directorduck_v10.feature.community.ui.InformationFragment
-
 import com.example.directorduck_v10.feature.course.ui.CourseFragment
 import com.example.directorduck_v10.feature.mine.ui.MineFragment
 import com.example.directorduck_v10.feature.practice.ui.PracticeFragment
-import com.example.directorduck_v10.core.state.SharedUserViewModel
+import java.util.Calendar
+import java.util.Date
 
 class MainActivity : BaseActivity() {
 
@@ -40,48 +42,93 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 从 LoginActivity 获取 User 对象
-        currentUser = intent.getSerializableExtra("user") as User
+        // 1. 获取用户信息并注入 ViewModel
+        if (intent.hasExtra("user")) {
+            currentUser = intent.getSerializableExtra("user") as User
+            sharedUserViewModel.user.value = currentUser
+        }
 
-        // 注入用户到 ViewModel
-        sharedUserViewModel.user.value = currentUser
-
-
-
-
-        // 默认显示练习页面
+        // 2. 默认显示练习页面 (初始化样式：非 Mine 页面)
         switchFragment(practiceFragment)
         binding.tvTime.text = getCountdownText()
         updateBottomNavUI(0)
+        updateTopLayoutStyle(isMinePage = false) // <--- 初始化顶部样式
 
-        // 设置点击事件
+        // 3. 设置点击事件
+
+        // [练习]
         binding.bottomNav1.setOnClickListener {
             binding.tvTime.text = getCountdownText()
             switchFragment(practiceFragment)
             updateBottomNavUI(0)
+            updateTopLayoutStyle(isMinePage = false) // <--- 恢复白色顶部
         }
+
+        // [课程]
         binding.bottomNav2.setOnClickListener {
-            binding.tvTime.text="鸭局长喊你上课！"
+            binding.tvTime.text = "鸭局长喊你上课！"
             switchFragment(courseFragment)
             updateBottomNavUI(1)
+            updateTopLayoutStyle(isMinePage = false) // <--- 恢复白色顶部
         }
+
+        // [AI 问答]
         binding.bottomNav3.setOnClickListener {
-//            binding.tvTime.text="鸭局长上线答疑啦！"
-//            switchFragment(aiFragment)
-//            updateBottomNavUI(2)
             playAiIconAnimation()
             val intent = Intent(this, AiActivity::class.java)
             startActivity(intent)
+            // 跳转 Activity 不需要处理当前页面的顶部栏
         }
+
+        // [资讯]
         binding.bottomNav4.setOnClickListener {
-            binding.tvTime.text="考公资讯~"
+            binding.tvTime.text = "公考朋友圈~"
             switchFragment(informationFragment)
             updateBottomNavUI(3)
+            updateTopLayoutStyle(isMinePage = false) // <--- 恢复白色顶部
         }
+
+        // [我的] - 这里是关键修改点
         binding.bottomNav5.setOnClickListener {
-            binding.tvTime.text="查看你的小档案~"
+            binding.tvTime.text = "查看你的小档案~"
             switchFragment(mineFragment)
             updateBottomNavUI(4)
+            updateTopLayoutStyle(isMinePage = true) // <--- 开启深蓝色顶部模式
+        }
+    }
+
+    /**
+     * 根据是否是“我的”页面，动态修改顶部布局的颜色和样式
+     */
+    private fun updateTopLayoutStyle(isMinePage: Boolean) {
+        if (isMinePage) {
+            // === 沉浸式深色模式 ===
+            // 1. 背景变深蓝 (#3E54AC)
+            binding.TopLayout.setBackgroundColor(Color.parseColor("#3E54AC"))
+
+            // 2. 文字变白 (深色背景需要浅色文字)
+            binding.tvTime.setTextColor(Color.WHITE)
+
+            // 3. 隐藏淡黄色分割线 (避免视觉割裂)
+            binding.topDivider.visibility = View.GONE
+
+            // 4. (可选) 改变状态栏图标颜色为浅色（白色），防止状态栏图标看不见
+            // 注意：这取决于你的 BaseActivity 配置，如果无效可以注释掉下面这行
+//            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+
+        } else {
+            // === 恢复默认浅色模式 ===
+            // 1. 背景恢复白色
+            binding.TopLayout.setBackgroundColor(Color.WHITE)
+
+            // 2. 文字恢复深色 (黑色或深灰)
+            binding.tvTime.setTextColor(Color.parseColor("#1A1C1E"))
+
+            // 3. 显示分割线
+            binding.topDivider.visibility = View.VISIBLE
+
+            // 4. (可选) 恢复状态栏图标为深色（黑色）
+//            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
     }
 
@@ -141,13 +188,12 @@ class MainActivity : BaseActivity() {
         }
     }
 
-
     private fun getCountdownText(): String {
-        val targetDate = java.util.Calendar.getInstance().apply {
-            set(2026, java.util.Calendar.NOVEMBER, 30) // 月份是从0开始的
+        val targetDate = Calendar.getInstance().apply {
+            set(2026, Calendar.NOVEMBER, 30) // 月份是从0开始的
         }.time
 
-        val currentDate = java.util.Date()
+        val currentDate = Date()
         val diffMillis = targetDate.time - currentDate.time
         val diffDays = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
 
@@ -165,6 +211,4 @@ class MainActivity : BaseActivity() {
         animatorSet.interpolator = OvershootInterpolator()
         animatorSet.start()
     }
-
-
 }

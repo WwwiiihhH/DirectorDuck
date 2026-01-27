@@ -10,6 +10,7 @@ class NoticeDetailActivity : BaseActivity() {
 
     private lateinit var binding: ActivityNoticeDetailBinding
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNoticeDetailBinding.inflate(layoutInflater)

@@ -4,6 +4,7 @@ import com.example.directorduck_v10.core.network.service.CommentService
 import com.example.directorduck_v10.core.network.service.CourseService
 import com.example.directorduck_v10.core.network.service.DeepSeekService
 import com.example.directorduck_v10.core.network.service.FavoriteService
+import com.example.directorduck_v10.core.network.service.MockExamService
 import com.example.directorduck_v10.core.network.service.NoticeService
 import com.example.directorduck_v10.core.network.service.PostService
 import com.example.directorduck_v10.core.network.service.PracticeService
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit
 object ApiClient {
 
     // ✅ Retrofit 的 baseUrl 必须以 / 结尾
-    private const val BASE_URL = "http://192.168.0.106:8080/"
+    private const val BASE_URL = "http://192.168.0.104:8080/"
 
     // 你也可以按需切换
     // private const val BASE_URL = "http://47.111.144.28:8080/"
@@ -57,6 +58,8 @@ object ApiClient {
     val noticeService: NoticeService by lazy { retrofit.create(NoticeService::class.java) }
     val deepSeekService: DeepSeekService by lazy { retrofit.create(DeepSeekService::class.java) }
     val favoriteService: FavoriteService by lazy { retrofit.create(FavoriteService::class.java) }
+    val mockExamService: MockExamService by lazy { retrofit.create(MockExamService::class.java) }
+
 
     /** 返回带 / 结尾的 baseUrl（给 Retrofit 用的） */
     fun getBaseUrl(): String = BASE_URL
