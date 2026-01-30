@@ -35,11 +35,7 @@ class CourseAdapter(private val courses: List<Course>) : RecyclerView.Adapter<Co
                 // 点击逻辑保持不变...
                 val context = binding.root.context
                 val intent = Intent(context, CoursePlayerActivity::class.java)
-                val fullVideoUrl = if (course.videoUrl.startsWith("http")) {
-                    course.videoUrl
-                } else {
-                    ApiClient.getBaseUrl() + course.videoUrl
-                }
+                val fullVideoUrl = ApiClient.buildAbsoluteUrl(course.videoUrl)
                 intent.putExtra("videoUrl", fullVideoUrl)
                 context.startActivity(intent)
             }

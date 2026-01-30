@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.widget.MediaController
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.directorduck_v10.core.base.BaseActivity
 import com.example.directorduck_v10.databinding.ActivityCoursePlayerBinding
@@ -44,6 +45,10 @@ class CoursePlayerActivity : BaseActivity() {
 
             // 播放结束自动退出可选
 //            setOnCompletionListener { finish() }
+            setOnErrorListener { _, what, extra ->
+                Toast.makeText(this@CoursePlayerActivity, "视频播放失败，请检查链接或网络", Toast.LENGTH_SHORT).show()
+                true
+            }
         }
         // 调整视频宽高使居中显示
         binding.videoView.setOnPreparedListener { mediaPlayer ->

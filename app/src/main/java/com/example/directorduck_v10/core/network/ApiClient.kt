@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 object ApiClient {
 
     // ✅ Retrofit 的 baseUrl 必须以 / 结尾
-    private const val BASE_URL = "http://192.168.0.107:8080/"
+    private const val BASE_URL = "http://192.168.0.105:8080/"
 
     // 你也可以按需切换
     // private const val BASE_URL = "http://47.111.144.28:8080/"
@@ -68,6 +68,25 @@ object ApiClient {
     fun getHostUrl(): String = BASE_URL.trimEnd('/')
 
     fun getQuizImageBaseUrl(): String = "${getBaseUrl()}quizuploads/"
+
+    /**
+     * 将相对路径/本地路径规范成可访问的完整 URL
+     */
+    fun buildAbsoluteUrl(path: String?): String {
+        if (path.isNullOrBlank()) return ""
+        if (path.startsWith("http://") || path.startsWith("https://")) return path
+
+        var p = path.replace("\\", "/").trim()
+
+        // 如果是本地磁盘路径，取文件名拼到 /videos/
+        if (p.contains(":/") || p.contains("DirectorDuckCourseVideo")) {
+            val file = p.substringAfterLast("/")
+            p = "/videos/$file"
+        }
+
+        if (!p.startsWith("/")) p = "/$p"
+        return getHostUrl() + p
+    }
 
     // ✅ 可选：如果你帖子图片都走 /images/ 或 /uploads/，也可以加一个统一的
     // fun getPostImageBaseUrl(): String = "${getHostUrl()}/images/"
