@@ -13,6 +13,7 @@ import com.example.directorduck_v10.feature.practice.adapter.QuestionPagerAdapte
 import com.example.directorduck_v10.core.network.service.RandomQuestionRequest
 import com.example.directorduck_v10.data.model.User
 import com.example.directorduck_v10.core.network.ApiClient
+import com.example.directorduck_v10.core.network.dto.deepseek.QuestionAttempt
 import com.example.directorduck_v10.databinding.ActivityQuizBinding
 import com.example.directorduck_v10.feature.practice.model.Question
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -456,7 +457,37 @@ class QuizActivity : BaseActivity() {
             timeMillis[i] = questionTimeSpentMillis[qId] ?: 0L
         }
 
+        val attempts = ArrayList<QuestionAttempt>()
+        for (q in questions) {
+            val qId = q.id
+            val userAnswer = userAnswers[qId] ?: ""
+            val correctAnswer = correctAnswers[qId] ?: ""
+            val status = if (questionAnswered[qId] != true) {
+                "unanswered"
+            } else if (correctAnswer.isNotBlank() && userAnswer == correctAnswer) {
+                "correct"
+            } else {
+                "incorrect"
+            }
+
+            attempts.add(
+                QuestionAttempt(
+                    questionId = q.id,
+                    uuid = q.uuid,
+                    questionText = q.questionText,
+                    optionA = q.optionA,
+                    optionB = q.optionB,
+                    optionC = q.optionC,
+                    optionD = q.optionD,
+                    userAnswer = userAnswer,
+                    correctAnswer = correctAnswer,
+                    status = status
+                )
+            )
+        }
+
         val intent = Intent(this, ResultActivity::class.java).apply {
+            putExtra("user", currentUser)
             putExtra(EXTRA_TOTAL_QUESTIONS, totalQuestions)
             putExtra(EXTRA_TIME_SPENT, elapsedTimeMillis)
             putExtra(EXTRA_CATEGORY_NAME, categoryName ?: subcategoryName ?: "未知分类")
@@ -474,6 +505,7 @@ class QuizActivity : BaseActivity() {
 
             putExtra(ResultActivity.EXTRA_ATTEMPT_START_EPOCH, attemptStartEpochMillis)
             putExtra(ResultActivity.EXTRA_ATTEMPT_END_EPOCH, attemptEndEpochMillis)
+            putExtra(ResultActivity.EXTRA_QUESTION_ATTEMPTS, attempts)
 
             putExtra("user_id", currentUser.id)
             putExtra("category_id", categoryId)
