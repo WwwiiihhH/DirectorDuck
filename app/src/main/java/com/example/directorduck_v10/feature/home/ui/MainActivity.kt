@@ -48,7 +48,7 @@ class MainActivity : BaseActivity() {
             sharedUserViewModel.user.value = currentUser
         }
 
-        // 2. 默认显示练习页面 (初始化样式：非 Mine 页面)
+        // 2. 默认显示练习页面（初始样式：非 Mine 页面）
         switchFragment(practiceFragment)
         binding.tvTime.text = getCountdownText()
         updateBottomNavUI(0)
@@ -76,8 +76,11 @@ class MainActivity : BaseActivity() {
         binding.bottomNav3.setOnClickListener {
             playAiIconAnimation()
             val intent = Intent(this, AiActivity::class.java)
+            if (this::currentUser.isInitialized) {
+                intent.putExtra(AiActivity.EXTRA_USER_ID, currentUser.id)
+            }
             startActivity(intent)
-            // 跳转 Activity 不需要处理当前页面的顶部栏
+            // 跳转 Activity 不需要处理当前页面的顶部样式
         }
 
         // [资讯]
@@ -88,7 +91,7 @@ class MainActivity : BaseActivity() {
             updateTopLayoutStyle(isMinePage = false) // <--- 恢复白色顶部
         }
 
-        // [我的] - 这里是关键修改点
+        // [我的]
         binding.bottomNav5.setOnClickListener {
             binding.tvTime.text = "查看你的小档案~"
             switchFragment(mineFragment)
@@ -106,14 +109,14 @@ class MainActivity : BaseActivity() {
             // 1. 背景变深蓝 (#3E54AC)
             binding.TopLayout.setBackgroundColor(Color.parseColor("#3E54AC"))
 
-            // 2. 文字变白 (深色背景需要浅色文字)
+            // 2. 文字变白（深色背景需要浅色文字）
             binding.tvTime.setTextColor(Color.WHITE)
 
-            // 3. 隐藏淡黄色分割线 (避免视觉割裂)
+            // 3. 隐藏淡黄色分割线（避免视觉割裂）
             binding.topDivider.visibility = View.GONE
 
-            // 4. (可选) 改变状态栏图标颜色为浅色（白色），防止状态栏图标看不见
-            // 注意：这取决于你的 BaseActivity 配置，如果无效可以注释掉下面这行
+            // 4. （可选）改变状态栏图标颜色为浅色（白色）
+            // 注意：这取决于你的 BaseActivity 配置，如无效可注释掉下面这行
 //            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
 
         } else {
@@ -121,13 +124,13 @@ class MainActivity : BaseActivity() {
             // 1. 背景恢复白色
             binding.TopLayout.setBackgroundColor(Color.WHITE)
 
-            // 2. 文字恢复深色 (黑色或深灰)
+            // 2. 文字恢复深色（黑色或深灰）
             binding.tvTime.setTextColor(Color.parseColor("#1A1C1E"))
 
             // 3. 显示分割线
             binding.topDivider.visibility = View.VISIBLE
 
-            // 4. (可选) 恢复状态栏图标为深色（黑色）
+            // 4. （可选）恢复状态栏图标为深色（黑色）
 //            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         }
     }
@@ -174,7 +177,7 @@ class MainActivity : BaseActivity() {
 
         for (i in imageViews.indices) {
             if (i == 2) {
-                // 跳过 AI 问答按钮，不变样式
+                // 跳过 AI 问答按钮，不改变样式
                 continue
             }
 
@@ -190,7 +193,7 @@ class MainActivity : BaseActivity() {
 
     private fun getCountdownText(): String {
         val targetDate = Calendar.getInstance().apply {
-            set(2026, Calendar.NOVEMBER, 30) // 月份是从0开始的
+            set(2026, Calendar.NOVEMBER, 30) // 月份从0开始
         }.time
 
         val currentDate = Date()

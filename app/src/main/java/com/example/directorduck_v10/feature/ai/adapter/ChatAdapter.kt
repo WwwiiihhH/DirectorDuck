@@ -1,5 +1,9 @@
 package com.example.directorduck_v10.feature.ai.adapter
 
+import android.graphics.Typeface
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,12 +13,45 @@ import com.example.directorduck_v10.R
 import com.example.directorduck_v10.feature.ai.model.ChatMessage
 
 class ChatAdapter(
-    private val data: MutableList<ChatMessage>
+    private var data: MutableList<ChatMessage>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private const val TYPE_USER = 1
         private const val TYPE_AI = 2
+
+        fun buildBoldSpan(text: String): CharSequence {
+            val sb = StringBuilder()
+            val spans = mutableListOf<Pair<Int, Int>>()
+            var i = 0
+            while (i < text.length) {
+                if (i + 1 < text.length && text[i] == '*' && text[i + 1] == '*') {
+                    val end = text.indexOf("**", i + 2)
+                    if (end > i + 2) {
+                        val start = sb.length
+                        sb.append(text.substring(i + 2, end))
+                        val spanEnd = sb.length
+                        spans.add(start to spanEnd)
+                        i = end + 2
+                        continue
+                    }
+                }
+                sb.append(text[i])
+                i++
+            }
+            val spannable = SpannableStringBuilder(sb.toString())
+            for ((s, e) in spans) {
+                if (s < e) {
+                    spannable.setSpan(
+                        StyleSpan(Typeface.BOLD),
+                        s,
+                        e,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            }
+            return spannable
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -44,6 +81,11 @@ class ChatAdapter(
         notifyItemInserted(data.size - 1)
     }
 
+    fun setMessages(messages: MutableList<ChatMessage>) {
+        data = messages
+        notifyDataSetChanged()
+    }
+
     fun updateLastAiMessage(newText: String) {
         for (i in data.size - 1 downTo 0) {
             if (!data[i].isUser) {
@@ -68,6 +110,6 @@ class ChatAdapter(
 
     class AiVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tv: TextView = itemView.findViewById(R.id.tvMessageAi)
-        fun bind(m: ChatMessage) { tv.text = m.text }
+        fun bind(m: ChatMessage) { tv.text = ChatAdapter.buildBoldSpan(m.text) }
     }
 }
