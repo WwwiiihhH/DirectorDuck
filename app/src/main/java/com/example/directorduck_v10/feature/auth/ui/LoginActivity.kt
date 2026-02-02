@@ -13,6 +13,7 @@ import retrofit2.Response
 import android.util.Log
 import com.example.directorduck_v10.feature.home.ui.MainActivity
 import com.example.directorduck_v10.core.base.BaseActivity
+import com.example.directorduck_v10.core.state.UserSessionStore
 
 
 class LoginActivity : BaseActivity() {
@@ -43,6 +44,8 @@ class LoginActivity : BaseActivity() {
                             Log.d("LoginActivity", "登录成功，用户信息: id=${user.id}, username=${user.username}, phone=${user.phone}, email=${user.email}")
 
                             // 这里拿到用户信息，跳转传递
+                            // Save session for future launches.
+                            UserSessionStore.save(this@LoginActivity, user)
                             val intent = Intent(this@LoginActivity, MainActivity::class.java)
                             intent.putExtra("user", body.data)
                             startActivity(intent)

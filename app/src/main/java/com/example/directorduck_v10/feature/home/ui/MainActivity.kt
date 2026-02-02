@@ -12,6 +12,7 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import com.example.directorduck_v10.R
 import com.example.directorduck_v10.core.base.BaseActivity
+import com.example.directorduck_v10.core.state.UserSessionStore
 import com.example.directorduck_v10.core.state.SharedUserViewModel
 import com.example.directorduck_v10.data.model.User
 import com.example.directorduck_v10.databinding.ActivityMainBinding
@@ -43,10 +44,7 @@ class MainActivity : BaseActivity() {
         setContentView(binding.root)
 
         // 1. 获取用户信息并注入 ViewModel
-        if (intent.hasExtra("user")) {
-            currentUser = intent.getSerializableExtra("user") as User
-            sharedUserViewModel.user.value = currentUser
-        }
+        bindUserFromIntent(intent)
 
         // 2. 默认显示练习页面（初始样式：非 Mine 页面）
         switchFragment(practiceFragment)
@@ -98,6 +96,23 @@ class MainActivity : BaseActivity() {
             updateBottomNavUI(4)
             updateTopLayoutStyle(isMinePage = true) // <--- 开启深蓝色顶部模式
         }
+    }
+
+
+
+    private fun bindUserFromIntent(inIntent: Intent?) {
+        val user = (inIntent?.getSerializableExtra("user") as? User)
+            ?: UserSessionStore.load(this)
+        if (user != null) {
+            currentUser = user
+            sharedUserViewModel.user.value = currentUser
+            UserSessionStore.save(this, currentUser)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        bindUserFromIntent(intent)
     }
 
     /**
