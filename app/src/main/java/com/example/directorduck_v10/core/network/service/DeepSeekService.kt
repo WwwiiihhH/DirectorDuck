@@ -5,6 +5,8 @@ import com.example.directorduck_v10.core.network.dto.deepseek.PracticeCommentDat
 import com.example.directorduck_v10.core.network.dto.deepseek.PracticeCommentRequest
 import com.example.directorduck_v10.core.network.dto.deepseek.ProxyChatRequest
 import com.example.directorduck_v10.core.network.dto.deepseek.ProxyChatResponse
+import com.example.directorduck_v10.core.network.dto.deepseek.QuestionSolveData
+import com.example.directorduck_v10.core.network.dto.deepseek.QuestionSolveRequest
 import com.example.directorduck_v10.core.network.dto.deepseek.ResultWrapper
 import retrofit2.Response
 import retrofit2.http.Body
@@ -18,5 +20,8 @@ interface DeepSeekService {
 
     @POST("api/deepseek/practice-comment")
     suspend fun practiceComment(@Body req: PracticeCommentRequest): retrofit2.Response<ApiResult<PracticeCommentData>>
+
+    @POST("api/deepseek/question-solve")
+    suspend fun questionSolve(@Body req: QuestionSolveRequest): retrofit2.Response<ApiResult<QuestionSolveData>>
 
 }

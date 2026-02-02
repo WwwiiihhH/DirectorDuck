@@ -4,6 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.*
 import android.util.Log
+import android.view.View
+import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
@@ -14,6 +18,8 @@ import com.example.directorduck_v10.core.network.service.RandomQuestionRequest
 import com.example.directorduck_v10.data.model.User
 import com.example.directorduck_v10.core.network.ApiClient
 import com.example.directorduck_v10.core.network.dto.deepseek.QuestionAttempt
+import com.example.directorduck_v10.core.network.dto.deepseek.QuestionSolveRequest
+import com.example.directorduck_v10.core.network.service.QuestionAnswerDto
 import com.example.directorduck_v10.databinding.ActivityQuizBinding
 import com.example.directorduck_v10.feature.practice.model.Question
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -78,6 +84,11 @@ class QuizActivity : BaseActivity() {
     private val favoriteStateByUuid = mutableMapOf<String, Boolean>() // 缓存：uuid -> 是否收藏
     private var bookmarkQuerySeq = 0 // 防止快速滑动时旧请求覆盖新请求
     private var bookmarkOpInFlight = false // 防止连点
+
+    // --- AI 解题思路 ---
+    private var aiSolveDialog: BottomSheetDialog? = null
+    private val aiSolveCache = mutableMapOf<String, String>() // uuid -> solution
+    private val questionDetailCache = mutableMapOf<String, QuestionAnswerDto>() // uuid -> detail
 
     companion object {
         const val EXTRA_CATEGORY_ID = "category_id"
@@ -153,6 +164,7 @@ class QuizActivity : BaseActivity() {
         binding.ivBookmark.setOnClickListener {
             toggleFavoriteForCurrentQuestion()
         }
+        binding.fabAiHelp.setOnClickListener { showAiSolveDialog() }
 
         binding.tvCategoryInfo.text = when {
             subcategoryName != null -> "专项练习(${subcategoryName})"
@@ -266,6 +278,153 @@ class QuizActivity : BaseActivity() {
         answerSheetDialog?.show()
     }
 
+    private fun showAiSolveDialog() {
+        val question = questions.getOrNull(binding.viewPagerQuestions.currentItem)
+        if (question == null) {
+            Toast.makeText(this, "题目未加载", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        aiSolveDialog?.dismiss()
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.dialog_ai_solution, null, false)
+
+        val tvQuestionContent = view.findViewById<TextView>(R.id.tvQuestionContent)
+        val tvQuestionOptions = view.findViewById<TextView>(R.id.tvQuestionOptions)
+        val tvQuestionAnalysis = view.findViewById<TextView>(R.id.tvQuestionAnalysis)
+        val tvSolveContent = view.findViewById<TextView>(R.id.tvSolveContent)
+        val pbLoading = view.findViewById<ProgressBar>(R.id.pbAiSolveLoading)
+        val btnRetry = view.findViewById<Button>(R.id.btnAiSolveRetry)
+        val tvClose = view.findViewById<TextView>(R.id.tvAiSolveClose)
+
+        tvQuestionContent.text = question.questionText.trim()
+        tvQuestionOptions.text = formatQuestionOptions(question)
+        tvQuestionAnalysis.text = "解析：加载中..."
+        tvSolveContent.text = ""
+        pbLoading.visibility = View.VISIBLE
+        btnRetry.isEnabled = false
+
+        tvClose.setOnClickListener { dialog.dismiss() }
+        btnRetry.setOnClickListener {
+            requestAiSolve(
+                question = question,
+                tvAnalysis = tvQuestionAnalysis,
+                tvSolve = tvSolveContent,
+                pbLoading = pbLoading,
+                btnRetry = btnRetry,
+                force = true
+            )
+        }
+
+        dialog.setContentView(view)
+        dialog.show()
+        aiSolveDialog = dialog
+
+        requestAiSolve(
+            question = question,
+            tvAnalysis = tvQuestionAnalysis,
+            tvSolve = tvSolveContent,
+            pbLoading = pbLoading,
+            btnRetry = btnRetry,
+            force = false
+        )
+    }
+
+    private fun requestAiSolve(
+        question: Question,
+        tvAnalysis: TextView,
+        tvSolve: TextView,
+        pbLoading: ProgressBar,
+        btnRetry: Button,
+        force: Boolean
+    ) {
+        if (!force) {
+            aiSolveCache[question.uuid]?.let { cached ->
+                pbLoading.visibility = View.GONE
+                btnRetry.isEnabled = true
+                tvSolve.text = cached
+                return
+            }
+        }
+
+        pbLoading.visibility = View.VISIBLE
+        btnRetry.isEnabled = false
+        tvSolve.text = ""
+
+        lifecycleScope.launch {
+            val detail = ensureQuestionDetail(question)
+            val analysis = detail?.analysis?.trim().orEmpty()
+            tvAnalysis.text = if (analysis.isNotBlank()) "解析：$analysis" else "解析：暂无解析"
+
+            val req = QuestionSolveRequest(
+                questionText = question.questionText,
+                optionA = question.optionA,
+                optionB = question.optionB,
+                optionC = question.optionC,
+                optionD = question.optionD,
+                analysis = analysis.ifBlank { null },
+                correctAnswer = detail?.correctAnswer,
+                userAnswer = userAnswers[question.id]
+            )
+
+            try {
+                val resp = withContext(Dispatchers.IO) {
+                    ApiClient.deepSeekService.questionSolve(req)
+                }
+
+                val solution = if (resp.isSuccessful) {
+                    val body = resp.body()
+                    if (body?.code == 200 && body.data != null) {
+                        body.data.solution
+                    } else {
+                        "AI解题思路生成失败：${body?.message ?: "未知错误"}"
+                    }
+                } else {
+                    "AI解题思路生成失败：HTTP ${resp.code()}"
+                }
+
+                if (solution.isNotBlank() && !solution.startsWith("AI解题思路生成失败")) {
+                    aiSolveCache[question.uuid] = solution
+                }
+
+                tvSolve.text = solution
+            } catch (e: Exception) {
+                tvSolve.text = "网络异常：${e.message ?: "unknown"}"
+            } finally {
+                pbLoading.visibility = View.GONE
+                btnRetry.isEnabled = true
+            }
+        }
+    }
+
+    private suspend fun ensureQuestionDetail(question: Question): QuestionAnswerDto? {
+        questionDetailCache[question.uuid]?.let { return it }
+        return try {
+            val resp = withContext(Dispatchers.IO) {
+                ApiClient.practiceService.getQuestionAnswerByUuid(question.uuid)
+            }
+            if (resp.isSuccessful) {
+                val body = resp.body()
+                val detail = if (body?.code == 200) body.data else null
+                if (detail != null) {
+                    questionDetailCache[question.uuid] = detail
+                }
+                detail
+            } else {
+                null
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun formatQuestionOptions(question: Question): String {
+        return "A. ${question.optionA}\n" +
+                "B. ${question.optionB}\n" +
+                "C. ${question.optionC}\n" +
+                "D. ${question.optionD}"
+    }
+
     private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
 
     private fun fetchAndCheckAnswer(questionId: Long, userAnswer: String) {
@@ -282,8 +441,10 @@ class QuizActivity : BaseActivity() {
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     if (apiResponse?.code == 200 && apiResponse.data != null) {
-                        val correctAnswer = apiResponse.data.correctAnswer
+                        val detail = apiResponse.data
+                        val correctAnswer = detail.correctAnswer
                         correctAnswers[questionId] = correctAnswer
+                        questionDetailCache[question.uuid] = detail
                         val status = if (userAnswer == correctAnswer) "correct" else "incorrect"
                         questionStatus[questionId] = status
                     } else {
@@ -656,5 +817,7 @@ class QuizActivity : BaseActivity() {
         stopTimer()
         answerSheetDialog?.dismiss()
         answerSheetDialog = null
+        aiSolveDialog?.dismiss()
+        aiSolveDialog = null
     }
 }

@@ -20,6 +20,7 @@ import com.example.directorduck_v10.core.network.dto.deepseek.SlowQuestion
 import com.example.directorduck_v10.core.network.ApiClient
 import com.example.directorduck_v10.data.model.User
 import com.example.directorduck_v10.databinding.ActivityResultBinding
+import com.example.directorduck_v10.feature.home.ui.MainActivity
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -75,7 +76,7 @@ class ResultActivity : AppCompatActivity() {
     }
 
     private fun setupClicks() {
-        binding.btnBack.setOnClickListener { finish() }
+        binding.btnBack.setOnClickListener { goToMain() }
         binding.btnAiPractice.setOnClickListener { startNextActionPractice() }
 
         // ✅ 点击“错误”卡片跳转错题页
@@ -159,6 +160,14 @@ class ResultActivity : AppCompatActivity() {
             attemptStartEpoch = attemptStartEpoch,
             attemptEndEpoch = attemptEndEpoch
         )
+    }
+
+    private fun goToMain() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
+        finish()
     }
 
     private fun fetchAiComment(
@@ -392,5 +401,9 @@ class ResultActivity : AppCompatActivity() {
     override fun onDestroy() {
         stopAiCommentLoading()
         super.onDestroy()
+    }
+
+    override fun onBackPressed() {
+        goToMain()
     }
 }
