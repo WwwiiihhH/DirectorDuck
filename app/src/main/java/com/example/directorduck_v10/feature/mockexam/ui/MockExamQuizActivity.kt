@@ -101,7 +101,7 @@ class MockExamQuizActivity : BaseActivity() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding.draftOverlay.visibility == android.view.View.VISIBLE) {
-                    binding.draftOverlay.visibility = android.view.View.GONE
+                    hideDraftOverlay()
                 } else {
                     confirmExit()
                 }
@@ -119,8 +119,8 @@ class MockExamQuizActivity : BaseActivity() {
         binding.tvProgress.text = "0/0"
         binding.tvTime.text = "--:--"
 
-        binding.ivPen.setOnClickListener { binding.draftOverlay.visibility = android.view.View.VISIBLE }
-        binding.btnDraftClose.setOnClickListener { binding.draftOverlay.visibility = android.view.View.GONE }
+        binding.ivPen.setOnClickListener { showDraftOverlay() }
+        binding.btnDraftClose.setOnClickListener { hideDraftOverlay() }
         binding.btnDraftClear.setOnClickListener { binding.draftView.clear() }
         binding.btnDraftUndo.setOnClickListener { binding.draftView.undo() }
 
@@ -148,6 +148,14 @@ class MockExamQuizActivity : BaseActivity() {
         })
 
         binding.ivAnswersheet.setOnClickListener { showAnswerSheetDialog() }
+    }
+
+    private fun showDraftOverlay() {
+        binding.draftOverlay.visibility = android.view.View.VISIBLE
+    }
+
+    private fun hideDraftOverlay() {
+        binding.draftOverlay.visibility = android.view.View.GONE
     }
 
     private fun loadPaperAndQuestions() {

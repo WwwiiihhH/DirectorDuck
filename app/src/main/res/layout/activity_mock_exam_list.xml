@@ -29,6 +29,20 @@
         app:layout_constraintStart_toEndOf="@id/ivBack"
         android:layout_marginStart="8dp"/>
 
+    <TextView
+        android:id="@+id/tvHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="模考历史"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#3B82F6"
+        android:padding="6dp"
+        app:layout_constraintTop_toTopOf="@id/ivBack"
+        app:layout_constraintBottom_toBottomOf="@id/ivBack"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="12dp"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerSessions"
         android:layout_width="0dp"

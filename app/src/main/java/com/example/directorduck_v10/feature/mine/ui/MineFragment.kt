@@ -7,13 +7,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import com.example.directorduck_v10.core.network.ApiClient
+import com.example.directorduck_v10.core.network.ApiResponse
 import com.example.directorduck_v10.core.state.SharedUserViewModel
+import com.example.directorduck_v10.core.state.UserSessionStore
 import com.example.directorduck_v10.databinding.FragmentMineBinding
+import com.example.directorduck_v10.feature.auth.ui.LoginActivity
 import com.example.directorduck_v10.feature.mine.viewmodel.MineViewModel
 import com.example.directorduck_v10.feature.report.ui.ReportActivity
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -111,6 +119,39 @@ class MineFragment : Fragment() {
         itemReport.setOnClickListener {
             startActivity(Intent(requireContext(), ReportActivity::class.java))
         }
+
+        itemLogout.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("退出登录")
+                .setMessage("确定退出当前账号吗？")
+                .setNegativeButton("取消", null)
+                .setPositiveButton("退出") { _, _ ->
+                    ApiClient.userService.logout().enqueue(object : Callback<ApiResponse<String>> {
+                        override fun onResponse(
+                            call: Call<ApiResponse<String>>,
+                            response: Response<ApiResponse<String>>
+                        ) {
+                            performLocalLogout()
+                        }
+
+                        override fun onFailure(call: Call<ApiResponse<String>>, t: Throwable) {
+                            performLocalLogout()
+                        }
+                    })
+                }
+                .show()
+        }
+    }
+
+    private fun performLocalLogout() {
+        if (!isAdded) return
+        val ctx = requireContext()
+        UserSessionStore.clear(ctx)
+        sharedUserViewModel.user.value = null
+        val intent = Intent(ctx, LoginActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
     }
 
     private fun formatDisplayTime(rawTime: String?): String {

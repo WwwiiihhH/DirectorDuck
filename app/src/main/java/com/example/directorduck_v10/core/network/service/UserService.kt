@@ -20,5 +20,9 @@ interface UserService {
         @Field("phone") phone: String,
         @Field("password") password: String
     ): Call<ApiResponse<User>>
+
+    // 退出登录
+    @POST("/api/user/logout")
+    fun logout(): Call<ApiResponse<String>>
 }
 

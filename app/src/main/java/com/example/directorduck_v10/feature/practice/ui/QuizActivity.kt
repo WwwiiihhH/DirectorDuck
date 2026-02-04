@@ -218,10 +218,14 @@ class QuizActivity : BaseActivity() {
 
     private fun showDraftOverlay() {
         binding.draftOverlay.visibility = android.view.View.VISIBLE
+        binding.fabAiHelp.visibility = View.INVISIBLE
+        binding.fabAiHelp.isEnabled = false
     }
 
     private fun hideDraftOverlay() {
         binding.draftOverlay.visibility = android.view.View.GONE
+        binding.fabAiHelp.visibility = View.VISIBLE
+        binding.fabAiHelp.isEnabled = true
     }
 
     private fun showAnswerSheetDialog() {

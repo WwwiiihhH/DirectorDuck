@@ -57,6 +57,9 @@ class MockExamListActivity : BaseActivity() {
         binding.recyclerSessions.layoutManager = LinearLayoutManager(this)
         binding.recyclerSessions.adapter = adapter
         binding.ivBack.setOnClickListener { finish() }
+        binding.tvHistory.setOnClickListener {
+            MockExamHistoryActivity.start(this, userId = userId, username = username)
+        }
 
         if (userId <= 0 || username.isBlank()) {
             Toast.makeText(this, "请先登录后再进入模考", Toast.LENGTH_SHORT).show()

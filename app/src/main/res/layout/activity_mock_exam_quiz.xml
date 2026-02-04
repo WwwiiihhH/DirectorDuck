@@ -142,43 +142,56 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <LinearLayout
+            android:id="@+id/draftToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_gravity="top"
+            android:background="#3B3F45"
+            android:gravity="center_vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="24dp">
+
+            <ImageButton
+                android:id="@+id/btnDraftClose"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back to questions"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="@android:color/white" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/btnDraftUndo"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Undo last stroke"
+                android:src="@android:drawable/ic_menu_revert"
+                app:tint="@android:color/white" />
+
+            <ImageButton
+                android:id="@+id/btnDraftClear"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Clear draft"
+                android:src="@android:drawable/ic_menu_delete"
+                app:tint="@android:color/white" />
+        </LinearLayout>
+
         <com.example.directorduck_v10.core.widget.DraftView
             android:id="@+id/draftView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <!-- 简单工具栏（可按需删减） -->
-        <!-- 右侧竖排工具栏 -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:layout_gravity="end|center_vertical"
-            android:padding="12dp">
-
-            <Button
-                android:id="@+id/btnDraftUndo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="撤销" />
-
-            <Button
-                android:id="@+id/btnDraftClear"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="清空"
-                android:layout_marginTop="10dp" />
-
-            <Button
-                android:id="@+id/btnDraftClose"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="关闭"
-                android:layout_marginTop="10dp" />
-
-        </LinearLayout>
-
+            android:layout_height="match_parent"
+            android:layout_marginTop="72dp" />
 
     </FrameLayout>
 
