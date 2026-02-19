@@ -1,13 +1,20 @@
 package com.example.directorduck_v10.feature.game.ui
 
+import android.animation.ValueAnimator
 import android.graphics.Bitmap
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.view.View
+import android.view.WindowManager
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.directorduck_v10.R
 import com.example.directorduck_v10.databinding.ActivityCompareSizeGameBinding
 import com.example.directorduck_v10.feature.game.adapter.CompareWrongAdapter
@@ -37,7 +44,7 @@ class CompareSizeGameActivity : AppCompatActivity() {
 
     private var locked = false // 提交后到切题前锁住
 
-    // ✅ 默认 3~6 位难度（分子分母的位数）
+    // 默认 3~6 位难度（分子分母的位数）
     private var minDigits = 3
     private var maxDigits = 6
 
@@ -69,7 +76,7 @@ class CompareSizeGameActivity : AppCompatActivity() {
         binding.btnClear.setOnClickListener { binding.handwritePad.clear() }
         binding.btnUndo.setOnClickListener { binding.handwritePad.undo() }
 
-        // ✅ 抬笔即识别
+        // 抬笔即识别
         binding.handwritePad.onStrokeUp = strokeUp@{ bmp ->
             if (locked) return@strokeUp
 
@@ -77,7 +84,6 @@ class CompareSizeGameActivity : AppCompatActivity() {
             if (symbol != null) {
                 submit(symbol)
             } else {
-                // 失败：提示并让用户重写
                 Toast.makeText(this, "识别失败，请写得更大、更尖一点", Toast.LENGTH_SHORT).show()
                 binding.handwritePad.clear()
             }
@@ -209,47 +215,59 @@ class CompareSizeGameActivity : AppCompatActivity() {
         handler.removeCallbacks(tick)
 
         val rate = if (totalCount == 0) 0 else (correctCount * 100 / totalCount)
+        val tone = resolveResultTone(rate)
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_compare_result, null, false)
 
-        val tvTotal = dialogView.findViewById<android.widget.TextView>(R.id.tvTotal)
-        val tvCorrect = dialogView.findViewById<android.widget.TextView>(R.id.tvCorrect)
-        val tvWrong = dialogView.findViewById<android.widget.TextView>(R.id.tvWrong)
-        val tvAccuracy = dialogView.findViewById<android.widget.TextView>(R.id.tvAccuracy)
-        val progress = dialogView.findViewById<com.google.android.material.progressindicator.LinearProgressIndicator>(
-            R.id.progressAccuracy
-        )
-        val tvTime = dialogView.findViewById<android.widget.TextView>(R.id.tvTime)
-
-        val tvNoWrong = dialogView.findViewById<android.widget.TextView>(R.id.tvNoWrong)
+        val tvResultBadge = dialogView.findViewById<TextView>(R.id.tvResultBadge)
+        val tvSubtitle = dialogView.findViewById<TextView>(R.id.tvSubtitle)
+        val tvTotal = dialogView.findViewById<TextView>(R.id.tvTotal)
+        val tvCorrect = dialogView.findViewById<TextView>(R.id.tvCorrect)
+        val tvWrong = dialogView.findViewById<TextView>(R.id.tvWrong)
+        val tvAccuracy = dialogView.findViewById<TextView>(R.id.tvAccuracy)
+        val progress = dialogView.findViewById<com.google.android.material.progressindicator.LinearProgressIndicator>(R.id.progressAccuracy)
+        val tvTime = dialogView.findViewById<TextView>(R.id.tvTime)
+        val tvNoWrong = dialogView.findViewById<TextView>(R.id.tvNoWrong)
         val rvWrong = dialogView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvWrong)
 
         val btnAgain = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAgain)
         val btnExit = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnExit)
 
-        // 填充数据
+        tvResultBadge.text = tone.badge
+        tvSubtitle.text = tone.summary
         tvTotal.text = totalCount.toString()
         tvCorrect.text = correctCount.toString()
         tvWrong.text = wrongCount.toString()
         tvAccuracy.text = "$rate%"
-        progress.progress = rate
+        tvAccuracy.setTextColor(ContextCompat.getColor(this, tone.accentColorRes))
+        progress.setIndicatorColor(ContextCompat.getColor(this, tone.accentColorRes))
+        progress.progress = 0
+        ValueAnimator.ofInt(0, rate).apply {
+            duration = 550L
+            addUpdateListener { anim -> progress.progress = anim.animatedValue as Int }
+            start()
+        }
         tvTime.text = "用时：${formatTime(elapsed)}"
 
-        // 错题列表
         if (wrongList.isEmpty()) {
-            tvNoWrong.visibility = android.view.View.VISIBLE
-            rvWrong.visibility = android.view.View.GONE
+            tvNoWrong.visibility = View.VISIBLE
+            rvWrong.visibility = View.GONE
         } else {
-            tvNoWrong.visibility = android.view.View.GONE
-            rvWrong.visibility = android.view.View.VISIBLE
-            rvWrong.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+            tvNoWrong.visibility = View.GONE
+            rvWrong.visibility = View.VISIBLE
+            rvWrong.layoutManager = LinearLayoutManager(this)
             rvWrong.adapter = CompareWrongAdapter(wrongList)
         }
 
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .setCancelable(false)
             .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+            dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        }
 
         btnAgain.setOnClickListener {
             dialog.dismiss()
@@ -263,20 +281,46 @@ class CompareSizeGameActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    private data class ResultTone(
+        val badge: String,
+        val summary: String,
+        val accentColorRes: Int
+    )
+
+    private fun resolveResultTone(rate: Int): ResultTone {
+        return when {
+            rate >= 95 -> ResultTone(
+                badge = "完美表现",
+                summary = "判断稳定且迅速，状态非常好",
+                accentColorRes = android.R.color.holo_green_dark
+            )
+            rate >= 80 -> ResultTone(
+                badge = "表现优秀",
+                summary = "整体节奏不错，再稳一点就更好了",
+                accentColorRes = android.R.color.holo_green_dark
+            )
+            rate >= 60 -> ResultTone(
+                badge = "继续加油",
+                summary = "已经掌握基础规律，复盘错题会提升更快",
+                accentColorRes = android.R.color.holo_orange_dark
+            )
+            else -> ResultTone(
+                badge = "本局挑战",
+                summary = "建议放慢一点，先保证准确率",
+                accentColorRes = android.R.color.holo_red_dark
+            )
+        }
+    }
+
 
     /**
-     * ✅ 识别 > 或 <
-     * 思路：将 bitmap 缩放+二值化，找到笔迹包围盒；
-     * 然后比较“靠左边缘/靠右边缘”的笔迹像素占比：
-     * - '>' 的尖点在右侧，右边缘更“聚”
-     * - '<' 的尖点在左侧，左边缘更“聚”
-     *
-     * 返回：">" / "<" / null(不确定)
+     * Recognize ">" or "<" from handwriting bitmap.
+     * Return ">", "<", or null when confidence is low.
      */
     private fun recognizeSymbol(src: Bitmap): String? {
         if (src.width <= 0 || src.height <= 0) return null
 
-        // ---------- 1) 找笔迹包围盒（在原图上找，更准） ----------
+        // ---------- 1) Find stroke bounding box ----------
         val w0 = src.width
         val h0 = src.height
         val pixels0 = IntArray(w0 * h0)
@@ -289,7 +333,7 @@ class CompareSizeGameActivity : AppCompatActivity() {
             val b = color and 0xFF
             if (a < 10) return false
             val lum = (r * 299 + g * 587 + b * 114) / 1000
-            return lum < 245 // ✅ 放宽（抗锯齿灰色也算笔迹）
+            return lum < 245 // Relaxed threshold to include antialiasing pixels.
         }
 
         var minX = w0
@@ -298,7 +342,7 @@ class CompareSizeGameActivity : AppCompatActivity() {
         var maxY = -1
         var inkCount = 0
 
-        // 采样步长：提高速度（2 像素采样一次）
+        // Sampling stride for better speed.
         val step = 2
         var y = 0
         while (y < h0) {
@@ -317,10 +361,10 @@ class CompareSizeGameActivity : AppCompatActivity() {
             y += step
         }
 
-        // ✅ 太少：大概率没写/太轻
+        // Too few pixels: likely no valid stroke.
         if (inkCount < 40 || maxX < 0) return null
 
-        // ---------- 2) 裁剪 + padding ----------
+        // ---------- 2) Crop + padding ----------
         val pad = 24
         minX = (minX - pad).coerceAtLeast(0)
         minY = (minY - pad).coerceAtLeast(0)
@@ -330,12 +374,12 @@ class CompareSizeGameActivity : AppCompatActivity() {
         val cropW = (maxX - minX + 1).coerceAtLeast(1)
         val cropH = (maxY - minY + 1).coerceAtLeast(1)
 
-        // 太扁/太窄的乱画直接失败
+        // Reject too narrow or too flat drawings.
         if (cropW < 40 || cropH < 40) return null
 
         val cropped = Bitmap.createBitmap(src, minX, minY, cropW, cropH)
 
-        // ---------- 3) 归一化缩放 ----------
+        // ---------- 3) Normalize ----------
         val size = 160
         val bmp = Bitmap.createScaledBitmap(cropped, size, size, true)
 
@@ -344,8 +388,7 @@ class CompareSizeGameActivity : AppCompatActivity() {
         val pixels = IntArray(w * h)
         bmp.getPixels(pixels, 0, w, 0, 0, w, h)
 
-        // ---------- 4) 统计“左尖/右尖” ----------
-        // 看左右两侧边缘 20% 区域的墨迹占比
+        // ---------- 4) Compare left-edge vs right-edge density ----------
         val leftXEnd = (w * 0.20f).toInt()
         val rightXStart = (w * 0.80f).toInt()
 
@@ -369,19 +412,19 @@ class CompareSizeGameActivity : AppCompatActivity() {
         val leftRatio = leftInk.toFloat() / boxInk
         val rightRatio = rightInk.toFloat() / boxInk
 
-        // ✅ 放宽门槛：不再要求 diff 很大
+        // Confidence threshold.
         val diff = kotlin.math.abs(rightRatio - leftRatio)
 
-        // 置信度太低就返回 null（比如画了竖线、乱涂）
+        // Low confidence cases: vertical line or random scribble.
         if (diff < 0.015f) return null
 
-        // 右边更聚 => '>'；左边更聚 => '<'
+        // Right denser => ">", left denser => "<".
         return if (rightRatio > leftRatio) ">" else "<"
     }
 
 
     /**
-     * ✅ 生成“很难一眼比较”的分数（默认 3..6 位分子分母）
+     * Generate hard-to-judge fraction pairs (default 3..6 digits).
      */
     private fun generateQuestions(count: Int, minDigits: Int, maxDigits: Int): List<CompareQuestion> {
         val list = ArrayList<CompareQuestion>(count)

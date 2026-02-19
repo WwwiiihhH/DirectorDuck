@@ -22,8 +22,9 @@ class CompareWrongAdapter(
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        val it = items[position]
-        holder.b.tvExpr.text = "${it.left.num}/${it.left.den}  ?  ${it.right.num}/${it.right.den}"
-        holder.b.tvDetail.text = "你的：${it.user}    正确：${it.correct}"
+        val item = items[position]
+        holder.b.tvExpr.text =
+            "第${position + 1}题  ${item.left.num}/${item.left.den}  ?  ${item.right.num}/${item.right.den}"
+        holder.b.tvDetail.text = "你的答案：${item.user}    正确答案：${item.correct}"
     }
 }

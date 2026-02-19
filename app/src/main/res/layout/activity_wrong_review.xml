@@ -14,7 +14,8 @@
         android:paddingEnd="12dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp">
 
         <com.example.directorduck_v10.core.widget.MyButton
             android:id="@+id/btnBack"
